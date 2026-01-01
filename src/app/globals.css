@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Mode - Clean white/lavender theme */
+  --background: #f8f5ff;
+  --foreground: #1e1b4b;
+  --card: #ffffff;
+  --card-foreground: #1e1b4b;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --muted: #f3f0ff;
+  --muted-foreground: #6b7280;
+  --border: #e9e3ff;
+  --accent: #ddd6fe;
+
+  --gradient-from: #a855f7;
+  --gradient-to: #ec4899;
+
+  /* Light mode specific */
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --sidebar-bg: rgba(255, 255, 255, 0.95);
+  --overlay-bg: rgba(0, 0, 0, 0.2);
+}
+
+.dark {
+  /* Dark Mode - Deep purple/pink theme */
+  --background: #0f0a1a;
+  --foreground: #f8fafc;
+  --card: #1a1025;
+  --card-foreground: #f1f5f9;
+  --primary: #9333ea;
+  --primary-foreground: #ffffff;
+  --muted: #1e1330;
+  --muted-foreground: #94a3b8;
+  --border: #2d1f42;
+  --accent: #3d2a5c;
+
+  --gradient-from: #a855f7;
+  --gradient-to: #ec4899;
+
+  /* Dark mode specific */
+  --header-bg: rgba(15, 10, 26, 0.8);
+  --sidebar-bg: rgba(15, 10, 26, 0.95);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+
+  --color-gradient-from: var(--gradient-from);
+  --color-gradient-to: var(--gradient-to);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border;
+  }
+
+  .glass-dark {
+    @apply dark:bg-black/30 bg-white/80 backdrop-blur-2xl border border-border;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gradient-from to-gradient-to;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  @apply antialiased transition-colors duration-300 min-h-screen selection:bg-purple-500/30;
+}
