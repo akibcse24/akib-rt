@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { Upload, X, Loader2, Check, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useTask } from "@/context/TaskContext";
+import { useAI } from "@/context/AIContext";
 
 interface ParsedTask {
     title: string;
@@ -28,6 +29,7 @@ export const ScheduleUploader: React.FC<ScheduleUploaderProps> = ({ isOpen, onCl
     const [success, setSuccess] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { addTask } = useTask();
+    const { aiPlatform } = useAI();
 
     const handleFile = async (file: File) => {
         if (!file.type.startsWith("image/")) {
@@ -47,6 +49,7 @@ export const ScheduleUploader: React.FC<ScheduleUploaderProps> = ({ isOpen, onCl
         try {
             const formData = new FormData();
             formData.append("image", file);
+            formData.append("platform", aiPlatform);
 
             const response = await fetch("/api/ai/parse-schedule", {
                 method: "POST",
@@ -134,8 +137,8 @@ export const ScheduleUploader: React.FC<ScheduleUploaderProps> = ({ isOpen, onCl
                 {!preview && (
                     <div
                         className={`relative rounded-2xl border-2 border-dashed p-8 text-center transition-all ${isDragging
-                                ? "border-purple-500 bg-purple-500/10"
-                                : "border-white/10 hover:border-white/20"
+                            ? "border-purple-500 bg-purple-500/10"
+                            : "border-white/10 hover:border-white/20"
                             }`}
                         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                         onDragLeave={() => setIsDragging(false)}
