@@ -27,6 +27,7 @@ export const useFocusTimer = () => {
 
   // Load stats on mount
   // Load stats on mount
+  // Load stats on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem("rt_focus_stats");

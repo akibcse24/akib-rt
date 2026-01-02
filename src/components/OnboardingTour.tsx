@@ -46,8 +46,6 @@ const OnboardingTour: React.FC = () => {
         try {
             hasSeen = localStorage.getItem("rt_has_seen_tour") || "false";
         } catch (e) {
-            // If storage blocked, assume tour seen to avoid annoyance? Or maybe show it once.
-            // Let's assume seen to be safe and avoiding loops.
             hasSeen = "true";
         }
 
