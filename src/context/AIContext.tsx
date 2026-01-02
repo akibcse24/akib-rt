@@ -49,25 +49,33 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
     // Load settings from localStorage on mount
     useEffect(() => {
-        const savedEnabled = localStorage.getItem("ai_enabled");
-        const savedPlatform = localStorage.getItem("ai_platform") as AIPlatform;
-        if (savedEnabled !== null) {
-            setAiEnabledState(savedEnabled === "true");
-        }
-        if (savedPlatform === "gemini" || savedPlatform === "groq") {
-            setAiPlatformState(savedPlatform);
+        try {
+            const savedEnabled = localStorage.getItem("ai_enabled");
+            const savedPlatform = localStorage.getItem("ai_platform") as AIPlatform;
+            if (savedEnabled !== null) {
+                setAiEnabledState(savedEnabled === "true");
+            }
+            if (savedPlatform === "gemini" || savedPlatform === "groq") {
+                setAiPlatformState(savedPlatform);
+            }
+        } catch (e) {
+            console.warn("AIContext: LocalStorage access denied", e);
         }
     }, []);
 
     // Setters that also save to localStorage
     const setAiEnabled = (enabled: boolean) => {
         setAiEnabledState(enabled);
-        localStorage.setItem("ai_enabled", String(enabled));
+        try {
+            localStorage.setItem("ai_enabled", String(enabled));
+        } catch (e) { }
     };
 
     const setAiPlatform = (platform: AIPlatform) => {
         setAiPlatformState(platform);
-        localStorage.setItem("ai_platform", platform);
+        try {
+            localStorage.setItem("ai_platform", platform);
+        } catch (e) { }
     };
 
     // Get the appropriate API endpoint based on platform

@@ -118,8 +118,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       setNotificationPermission(Notification.permission);
     }
     // Check app-level preference
-    const storedPref = localStorage.getItem("rt_notifications_enabled");
-    setAreNotificationsEnabled(storedPref === "true");
+    try {
+      const storedPref = localStorage.getItem("rt_notifications_enabled");
+      setAreNotificationsEnabled(storedPref === "true");
+    } catch (e) {
+      setAreNotificationsEnabled(false);
+    }
   }, []);
 
   const handleToggleNotifications = (enabled: boolean) => {
@@ -130,7 +134,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           setNotificationPermission(permission);
           if (permission === "granted") {
             setAreNotificationsEnabled(true);
-            localStorage.setItem("rt_notifications_enabled", "true");
+            try {
+              localStorage.setItem("rt_notifications_enabled", "true");
+            } catch (e) { }
             new Notification("RT - Routine Tracker", { body: "Notifications enabled!" });
           }
         });
@@ -138,7 +144,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     } else {
       // User wants to DISABLE
       setAreNotificationsEnabled(false);
-      localStorage.setItem("rt_notifications_enabled", "false");
+      try {
+        localStorage.setItem("rt_notifications_enabled", "false");
+      } catch (e) { }
     }
   };
 

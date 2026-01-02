@@ -26,17 +26,24 @@ export const useFocusTimer = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Load stats on mount
+  // Load stats on mount
   useEffect(() => {
-    const stored = localStorage.getItem("rt_focus_stats");
-    const today = new Date().toDateString();
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.date === today) {
-        setTodayStats(parsed.data);
-      } else {
-        // Reset if new day
-        localStorage.setItem("rt_focus_stats", JSON.stringify({ date: today, data: { minutes: 0, sessions: 0 } }));
+    try {
+      const stored = localStorage.getItem("rt_focus_stats");
+      const today = new Date().toDateString();
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.date === today) {
+          setTodayStats(parsed.data);
+        } else {
+          // Reset if new day
+          try {
+            localStorage.setItem("rt_focus_stats", JSON.stringify({ date: today, data: { minutes: 0, sessions: 0 } }));
+          } catch (e) { }
+        }
       }
+    } catch (e) {
+      console.warn("FocusTimer storage access denied");
     }
   }, []);
 
@@ -45,7 +52,9 @@ export const useFocusTimer = () => {
     setTodayStats(prev => {
       const newData = { minutes: prev.minutes + addMinutes, sessions: prev.sessions + addSession };
       const today = new Date().toDateString();
-      localStorage.setItem("rt_focus_stats", JSON.stringify({ date: today, data: newData }));
+      try {
+        localStorage.setItem("rt_focus_stats", JSON.stringify({ date: today, data: newData }));
+      } catch (e) { }
       return newData;
     });
   };

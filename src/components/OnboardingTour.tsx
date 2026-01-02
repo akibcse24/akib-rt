@@ -42,8 +42,16 @@ const OnboardingTour: React.FC = () => {
 
     useEffect(() => {
         // Check if user has seen the tour
-        const hasSeen = localStorage.getItem("rt_has_seen_tour");
-        if (!hasSeen) {
+        let hasSeen = "false";
+        try {
+            hasSeen = localStorage.getItem("rt_has_seen_tour") || "false";
+        } catch (e) {
+            // If storage blocked, assume tour seen to avoid annoyance? Or maybe show it once.
+            // Let's assume seen to be safe and avoiding loops.
+            hasSeen = "true";
+        }
+
+        if (!hasSeen || hasSeen === "false") {
             // Small delay to allow UI to load
             const timer = setTimeout(() => setIsOpen(true), 1500);
             return () => clearTimeout(timer);
@@ -60,12 +68,16 @@ const OnboardingTour: React.FC = () => {
 
     const handleComplete = () => {
         setIsOpen(false);
-        localStorage.setItem("rt_has_seen_tour", "true");
+        try {
+            localStorage.setItem("rt_has_seen_tour", "true");
+        } catch (e) { }
     };
 
     const handleSkip = () => {
         setIsOpen(false);
-        localStorage.setItem("rt_has_seen_tour", "true");
+        try {
+            localStorage.setItem("rt_has_seen_tour", "true");
+        } catch (e) { }
     };
 
     if (!isOpen) return null;
