@@ -6,6 +6,7 @@ import { useFocusTimer } from "@/hooks/useFocusTimer";
 import { TimerDisplay } from "@/components/focus/TimerDisplay";
 import { SessionControls } from "@/components/focus/SessionControls";
 import { AmbientPlayer } from "@/components/focus/AmbientPlayer";
+import { FocusStats } from "@/components/focus/FocusStats";
 import { Timer, Zap, Coffee, Target } from "lucide-react";
 import { useTask } from "@/context/TaskContext";
 import { isSameDay } from "date-fns";

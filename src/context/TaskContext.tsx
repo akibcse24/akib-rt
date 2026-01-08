@@ -200,9 +200,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Sanitize: Firestore does not allow 'undefined' values.
     // We create a clean object for Firestore.
     const firestoreData = { ...newTask };
-    if (firestoreData.reminder === undefined) {
-      delete firestoreData.reminder;
-    }
+    Object.keys(firestoreData).forEach(key => {
+      if (firestoreData[key as keyof Task] === undefined) {
+        delete firestoreData[key as keyof Task];
+      }
+    });
 
     try {
       await setDoc(doc(db, "users", user.uid, "tasks", newTask.id), firestoreData);
@@ -222,9 +224,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Sanitize data
     const dataToSave = { ...updatedTask };
-    if (dataToSave.reminder === undefined) {
-      delete dataToSave.reminder;
-    }
+    Object.keys(dataToSave).forEach(key => {
+      if (dataToSave[key as keyof Task] === undefined) {
+        delete dataToSave[key as keyof Task];
+      }
+    });
 
     // Overwrite the document with new data
     try {

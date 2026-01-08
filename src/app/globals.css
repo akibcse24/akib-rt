@@ -81,6 +81,57 @@
   }
 }
 
+/* Shimmer animation for progress bars */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Level up celebration pulse */
+@keyframes level-up-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.animate-level-up {
+  animation: level-up-pulse 0.5s ease-out;
+}
+
+/* Achievement unlock glow */
+@keyframes achievement-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(236, 72, 153, 0.4);
+  }
+}
+
+.animate-achievement-glow {
+  animation: achievement-glow 1.5s ease-in-out infinite;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

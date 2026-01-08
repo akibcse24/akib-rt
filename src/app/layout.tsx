@@ -7,6 +7,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { NotificationManager } from "@/components/NotificationManager";
 import { AIChat } from "@/components/ai/AIChat";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
 
 import { Toaster } from "sonner";
 
@@ -114,6 +115,7 @@ export default function RootLayout({
           {children}
           <AIChat />
           <PWAInstallPrompt />
+          <KeyboardShortcuts />
           <Toaster richColors position="top-right" />
         </Providers>
       </body>

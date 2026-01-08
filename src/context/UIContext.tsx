@@ -13,8 +13,16 @@ import React, { createContext, useContext, useState } from "react";
 // We define an interface to specify what data and functions are available within this context.
 interface UIContextType {
     isSidebarOpen: boolean;                  // The current state of the sidebar (true = open, false = closed)
-    setSidebarOpen: (open: boolean) => void; // A function to directly set the state
+    setSidebarOpen: (open: boolean | ((prev: boolean) => boolean)) => void; // A function to directly set the state
     toggleSidebar: () => void;               // A helper function to flip the state (open <-> close)
+
+    // Settings Modal
+    isSettingsOpen: boolean;
+    setSettingsOpen: (open: boolean) => void;
+
+    // Task Modal
+    isTaskModalOpen: boolean;
+    setTaskModalOpen: (open: boolean) => void;
 }
 
 // 2. CREATE THE CONTEXT
@@ -27,15 +35,34 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 // This component wraps our app (or parts of it) and "provides" the state to all children.
 export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     // We use a standard React useState hook to manage the boolean flag.
-    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarOpen, setSidebarOpenState] = useState(false);
+    const [isSettingsOpen, setSettingsOpen] = useState(false);
+    const [isTaskModalOpen, setTaskModalOpen] = useState(false);
+
+    // Wrapper to support both direct value and function
+    const setSidebarOpen = (value: boolean | ((prev: boolean) => boolean)) => {
+        if (typeof value === "function") {
+            setSidebarOpenState(value);
+        } else {
+            setSidebarOpenState(value);
+        }
+    };
 
     // Helper function to easily toggle the sidebar without needing to know the current state.
-    const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+    const toggleSidebar = () => setSidebarOpenState((prev) => !prev);
 
     // We pass these values into the Provider.
     // Any component inside this provider can now access: isSidebarOpen, setSidebarOpen, toggleSidebar.
     return (
-        <UIContext.Provider value={{ isSidebarOpen, setSidebarOpen, toggleSidebar }}>
+        <UIContext.Provider value={{
+            isSidebarOpen,
+            setSidebarOpen,
+            toggleSidebar,
+            isSettingsOpen,
+            setSettingsOpen,
+            isTaskModalOpen,
+            setTaskModalOpen
+        }}>
             {children}
         </UIContext.Provider>
     );
@@ -52,3 +79,4 @@ export const useUI = () => {
     }
     return context;
 };
+

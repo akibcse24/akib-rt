@@ -13,7 +13,8 @@ import {
   ShoppingBag,
   X,
   Sparkles,
-  LogOut
+  LogOut,
+  Award
 } from "lucide-react";
 import { Button } from "./ui/Button";
 import { clsx, type ClassValue } from "clsx";
@@ -51,6 +52,7 @@ const ITEMS = [
   { name: "Focus", href: "/focus", icon: Timer },
   { name: "Goals", href: "/goals", icon: Target },
   { name: "Analytics", href: "/analytics", icon: BarChart2 },
+  { name: "Achievements", href: "/achievements", icon: Award },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
 ];
 
