@@ -28,7 +28,7 @@ const Header: React.FC = () => {
           <img
             src="/logo.jpg"
             alt="RT Logo"
-            className="h-10 w-10 rounded-xl shadow-lg shadow-purple-500/20"
+            className="h-11 w-11 rounded-xl shadow-lg shadow-purple-500/20"
           />
           <h1 className="text-xl font-bold tracking-tight text-foreground hidden sm:block">Routine Tracker</h1>
         </Link>
@@ -40,7 +40,7 @@ const Header: React.FC = () => {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="relative rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
+            className="hidden md:flex relative rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all"
           >
             <Sun className="h-5 w-5 scale-0 transition-all dark:scale-100" />
             <Moon className="absolute h-5 w-5 scale-100 transition-all dark:scale-0" />
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
 
           <Link
             href="/marketplace"
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            className="hidden md:flex items-center gap-2 rounded-xl px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
           >
             <LayoutTemplate className="h-5 w-5" />
             <span className="hidden md:inline text-sm font-medium">Templates</span>
@@ -57,10 +57,11 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             onClick={() => setIsSettingsOpen(true)}
-            className="rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all gap-2 px-3"
+            size="icon"
+            className="rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-all px-3 md:w-auto"
           >
             <Settings className="h-5 w-5" />
-            <span className="hidden md:inline text-sm font-medium">Settings</span>
+            <span className="hidden md:inline text-sm font-medium ml-2">Settings</span>
           </Button>
 
           <Button

@@ -14,7 +14,8 @@ import {
   X,
   Sparkles,
   LogOut,
-  Award
+  Award,
+  LayoutTemplate
 } from "lucide-react";
 import { Button } from "./ui/Button";
 import { clsx, type ClassValue } from "clsx";
@@ -54,6 +55,7 @@ const ITEMS = [
   { name: "Analytics", href: "/analytics", icon: BarChart2 },
   { name: "Achievements", href: "/achievements", icon: Award },
   { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
+  { name: "Templates", href: "/marketplace", icon: LayoutTemplate },
 ];
 
 const AppSidebar: React.FC = () => {
