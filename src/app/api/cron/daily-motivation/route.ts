@@ -6,7 +6,7 @@
 
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 import { logger } from "@/lib/logger";
 
 // Verify the request is from Vercel Cron
@@ -26,25 +26,53 @@ export async function GET(request: Request) {
     try {
         logger.info("Daily motivation cron job started", { action: "cron/daily-motivation" });
 
-        // Get count of active users (users with tasks)
         const usersSnapshot = await getDocs(collection(db, "users"));
-        const userCount = usersSnapshot.size;
+        let notificationsCreated = 0;
+        let errors = 0;
 
-        // Log the job execution
-        logger.info(`Daily motivation prepared for ${userCount} users`, {
+        const motivationalMessages = [
+            "Consistency is key! Every journey starts with a single step.",
+            "You are capable of amazing things. Keep pushing!",
+            "Small progress is still progress. Keep going!",
+            "Your potential is endless. Go do what you were created to do.",
+            "Discipline is choosing between what you want now and what you want most.",
+            "Success is the sum of small efforts repeated day in and day out.",
+            "Don't watch the clock; do what it does. Keep going!",
+            "The only way to do great work is to love what you do.",
+        ];
+
+        for (const userDoc of usersSnapshot.docs) {
+            try {
+                const userId = userDoc.id;
+                const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+
+                // Create notification in Firestore
+                const notificationRef = doc(collection(db, "users", userId, "notifications"));
+                await setDoc(notificationRef, {
+                    type: "info",
+                    title: "Daily Motivation ✨",
+                    message: randomMessage,
+                    createdAt: new Date().toISOString(),
+                    read: false,
+                });
+
+                notificationsCreated++;
+            } catch (userError) {
+                errors++;
+                logger.warn(`Failed to create notification for user`, userError);
+            }
+        }
+
+        logger.info(`Daily motivation completed: ${notificationsCreated} notifications created, ${errors} errors`, {
             action: "cron/daily-motivation",
-            metadata: { userCount },
+            metadata: { notificationsCreated, errors },
         });
-
-        // In a full implementation, you would:
-        // 1. Fetch each user's tasks for today
-        // 2. Generate personalized motivation
-        // 3. Store in a "notifications" collection or send via push
 
         return NextResponse.json({
             success: true,
             message: `Daily motivation job completed`,
-            usersProcessed: userCount,
+            notificationsCreated,
+            errors,
             timestamp: new Date().toISOString(),
         });
     } catch (error: any) {

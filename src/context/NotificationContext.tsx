@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "./AuthContext";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
 export interface AppNotification {
     id: string;
@@ -12,6 +15,7 @@ export interface AppNotification {
     read: boolean;
     type?: "info" | "success" | "warning" | "error";
     link?: string;
+    source?: "local" | "server"; // Track notification source
 }
 
 interface NotificationContextType {
@@ -29,18 +33,58 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [notifications, setNotifications] = useState<AppNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const { user } = useAuth();
 
     // Load from local storage on mount
     useEffect(() => {
         try {
             const stored = localStorage.getItem("rt_notifications_history");
             if (stored) {
-                setNotifications(JSON.parse(stored));
+                const localNotifications = JSON.parse(stored).map((n: AppNotification) => ({
+                    ...n,
+                    source: "local" as const
+                }));
+                setNotifications(localNotifications);
             }
         } catch (e) {
             console.error("Failed to load notifications", e);
         }
     }, []);
+
+    // Sync server notifications from Firestore
+    useEffect(() => {
+        if (!user) return;
+
+        const notificationsRef = collection(db, "users", user.uid, "notifications");
+        const q = query(notificationsRef, orderBy("createdAt", "desc"));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const serverNotifications: AppNotification[] = [];
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                serverNotifications.push({
+                    id: doc.id,
+                    title: data.title,
+                    message: data.message,
+                    timestamp: new Date(data.createdAt).getTime(),
+                    read: data.read || false,
+                    type: data.type || "info",
+                    source: "server"
+                });
+            });
+
+            // Merge server notifications with local ones
+            setNotifications((prev) => {
+                const localNotifications = prev.filter(n => n.source === "local");
+                const merged = [...serverNotifications, ...localNotifications];
+                // Sort by timestamp descending
+                return merged.sort((a, b) => b.timestamp - a.timestamp).slice(0, 50);
+            });
+        });
+
+        return () => unsubscribe();
+    }, [user]);
 
     // Update unread count and persist whenever notifications change
     useEffect(() => {
@@ -88,6 +132,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             read: false,
             type,
             link,
+            source: "local",
         };
 
         setNotifications((prev) => [newNotification, ...prev]);
@@ -105,11 +150,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         });
     }, [playSound]);
 
-    const markAsRead = useCallback((id: string) => {
+    const markAsRead = useCallback(async (id: string) => {
+        const notification = notifications.find(n => n.id === id);
+
+        // Update Firestore if it's a server notification
+        if (notification?.source === "server" && user) {
+            try {
+                await updateDoc(doc(db, "users", user.uid, "notifications", id), {
+                    read: true
+                });
+            } catch (error) {
+                console.error("Failed to mark notification as read in Firestore", error);
+            }
+        }
+
+        // Update local state
         setNotifications((prev) =>
             prev.map((n) => (n.id === id ? { ...n, read: true } : n))
         );
-    }, []);
+    }, [notifications, user]);
 
     const markAllAsRead = useCallback(() => {
         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -119,9 +178,21 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setNotifications([]);
     }, []);
 
-    const removeNotification = useCallback((id: string) => {
+    const removeNotification = useCallback(async (id: string) => {
+        const notification = notifications.find(n => n.id === id);
+
+        // Delete from Firestore if it's a server notification
+        if (notification?.source === "server" && user) {
+            try {
+                await deleteDoc(doc(db, "users", user.uid, "notifications", id));
+            } catch (error) {
+                console.error("Failed to delete notification from Firestore", error);
+            }
+        }
+
+        // Update local state
         setNotifications((prev) => prev.filter((n) => n.id !== id));
-    }, []);
+    }, [notifications, user]);
 
     return (
         <NotificationContext.Provider
