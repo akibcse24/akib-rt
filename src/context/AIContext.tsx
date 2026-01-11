@@ -161,7 +161,8 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
                         startTime: task.startTime || "09:00",
                         endTime: task.endTime || "10:00",
                         timeBlock: task.timeBlock || "Morning",
-                        days: task.days || ["MON", "TUE", "WED", "THU", "FRI"],
+                        days: task.days || (task.specificDate ? [] : ["MON", "TUE", "WED", "THU", "FRI"]),
+                        specificDate: task.specificDate, // Support calendar-specific dates
                     });
                 }
                 if (data.action.action === "CREATE_GOAL" && data.action.goal) {
@@ -182,7 +183,18 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
                 if (data.action.action === "EDIT_TASK" && data.action.taskId && data.action.updates) {
                     const taskToEdit = tasks.find(t => t.id === data.action.taskId);
                     if (taskToEdit) {
+                        // Handle date-based updates (specificDate can be added, changed, or removed)
                         const updatedTask = { ...taskToEdit, ...data.action.updates };
+
+                        // If converting from recurring to date-specific, ensure days is empty
+                        if (data.action.updates.specificDate && !data.action.updates.days) {
+                            updatedTask.days = [];
+                        }
+                        // If converting from date-specific to recurring, remove specificDate
+                        if (data.action.updates.days && data.action.updates.specificDate === null) {
+                            delete updatedTask.specificDate;
+                        }
+
                         await updateTask(updatedTask);
                     }
                 }

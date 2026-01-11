@@ -24,13 +24,26 @@ service cloud.firestore {
     // Helper: Validate task data structure
     function isValidTask() {
       let task = request.resource.data;
-      return task.keys().hasAll(['title', 'icon', 'startTime', 'endTime', 'timeBlock', 'days', 'isCompleted', 'completionHistory'])
-        && task.title is string && task.title.size() > 0 && task.title.size() <= 100
+      let hasSpecificDate = 'specificDate' in task.keys();
+      
+      // Required fields for all tasks
+      let hasRequiredFields = task.keys().hasAll(['title', 'icon', 'startTime', 'endTime', 'timeBlock', 'days', 'isCompleted', 'completionHistory']);
+      
+      // Basic field validation
+      let basicValidation = task.title is string && task.title.size() > 0 && task.title.size() <= 100
         && task.icon is string && task.icon.size() <= 10
         && task.timeBlock in ['Dawn', 'Morning', 'Noon', 'Afternoon', 'Evening', 'Night']
-        && task.days is list && task.days.size() > 0
+        && task.days is list
         && task.isCompleted is bool
         && task.completionHistory is list;
+      
+      // Days array validation: Must have items for recurring tasks, can be empty for date-specific tasks
+      let daysValidation = hasSpecificDate ? true : task.days.size() > 0;
+      
+      // specificDate validation: If present, must be a string
+      let specificDateValidation = hasSpecificDate ? (task.specificDate is string) : true;
+      
+      return hasRequiredFields && basicValidation && daysValidation && specificDateValidation;
     }
     
     // Helper: Validate goal data structure

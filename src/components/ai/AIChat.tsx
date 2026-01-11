@@ -91,6 +91,8 @@ export const AIChat: React.FC = () => {
     const quickActions = [
         { label: "➕ Add Task", prompt: "Create a task to " },
         { label: "🎯 Set Goal", prompt: "Create a goal to " },
+        { label: "📅 Schedule Date", prompt: "Schedule a task on " },
+        { label: "🔄 Reschedule", prompt: "Move my task to " },
         { label: "✏️ Edit Task", prompt: "Change the time of " },
         { label: "🗑️ Delete Task", prompt: "Delete the task called " },
         { label: "💪 Motivate", prompt: "Give me motivation for my tasks today" },
@@ -189,7 +191,7 @@ export const AIChat: React.FC = () => {
                             </div>
                             <h4 className="text-sm font-bold text-foreground mb-2">Hi! I'm RT AI 🌟</h4>
                             <p className="text-xs text-muted-foreground mb-4">
-                                I can create, edit, delete tasks, set goals, and motivate you!
+                                I can create, edit, delete tasks, schedule on specific dates, set goals, and motivate you!
                             </p>
                             <div className="flex flex-wrap gap-2 justify-center">
                                 {quickActions.map((action) => (
