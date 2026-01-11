@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useMemo, useCallback } from "react";
 import { useTask, Task } from "./TaskContext";
+import { useAuth } from "./AuthContext";
 import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval, differenceInDays } from "date-fns";
 
 // ============================================================================
@@ -72,6 +73,7 @@ const AnalyticsContext = createContext<AnalyticsContextType | undefined>(undefin
 
 export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { tasks, getCompletionRate, calculateStreak } = useTask();
+    const { user } = useAuth(); // Use the hook properly at top level!
 
     // Calculate total tasks completed (all time)
     const totalTasksCompleted = useMemo(() => {
@@ -150,8 +152,28 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return getCompletionRate(30);
     }, [getCompletionRate]);
 
-    // Total focus minutes (placeholder - integrate with FocusTimer later)
-    const totalFocusMinutes = 0;
+    // Total focus minutes from Firestore
+    const [totalFocusMinutes, setTotalFocusMinutes] = React.useState(0);
+
+    // Fetch total focus minutes when tasks change
+    React.useEffect(() => {
+        if (!user) {
+            setTotalFocusMinutes(0);
+            return;
+        }
+
+        const loadFocusMinutes = async () => {
+            try {
+                const { getTotalFocusMinutes } = await import('@/lib/focusSessionUtils');
+                const minutes = await getTotalFocusMinutes(user.uid);
+                setTotalFocusMinutes(minutes);
+            } catch (error) {
+                console.error('Failed to load total focus minutes:', error);
+            }
+        };
+
+        loadFocusMinutes();
+    }, [user, tasks.length]);
 
     // Heatmap Data Generator
     const getHeatmapData = useCallback((days: number = 365): HeatmapDay[] => {
@@ -408,3 +430,4 @@ export const useAnalytics = () => {
     }
     return context;
 };
+

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AlertTriangle, AlertCircle, Info, CheckCircle, X } from "lucide-react";
 import { Button } from "./Button";
 
@@ -28,13 +28,49 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     type = "warning"
 }) => {
     const [isVisible, setIsVisible] = useState(false);
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
+    // Handle animations
     useEffect(() => {
         if (isOpen) {
             setTimeout(() => setIsVisible(true), 10);
+            // Focus confirm button when dialog opens
+            setTimeout(() => confirmButtonRef.current?.focus(), 100);
         } else {
             setIsVisible(false);
         }
+    }, [isOpen]);
+
+    // Handle keyboard events
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                handleCancel();
+            } else if (e.key === "Enter" && e.ctrlKey) {
+                handleConfirm();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen]);
+
+    // Handle visibility change (tab switching)
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleVisibilityChange = () => {
+            if (!document.hidden && isOpen) {
+                // Re-focus when returning to tab
+                setTimeout(() => confirmButtonRef.current?.focus(), 100);
+            }
+        };
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
     }, [isOpen]);
 
     if (!isOpen) return null;
@@ -85,9 +121,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
     return (
         <div
+            ref={dialogRef}
             className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${isVisible ? "opacity-100" : "opacity-0"
                 }`}
             onClick={handleCancel}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
         >
             {/* Backdrop */}
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -109,7 +149,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
                             {/* Content */}
                             <div className="flex-1 pt-1">
-                                <h3 className="text-lg font-bold text-foreground mb-1">
+                                <h3 id="dialog-title" className="text-lg font-bold text-foreground mb-1">
                                     {title}
                                 </h3>
                                 {description && (
@@ -123,6 +163,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                             <button
                                 onClick={handleCancel}
                                 className="p-1 rounded-lg hover:bg-white/5 transition-colors text-muted-foreground hover:text-foreground"
+                                aria-label="Close dialog"
                             >
                                 <X className="h-5 w-5" />
                             </button>
@@ -139,6 +180,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                             {cancelText}
                         </Button>
                         <Button
+                            ref={confirmButtonRef}
                             onClick={handleConfirm}
                             className={`min-w-[100px] border-0 ${config.buttonClass}`}
                         >
@@ -161,6 +203,7 @@ export function useConfirm() {
         cancelText?: string;
         type?: ConfirmType;
         onConfirm?: () => void;
+        onCancel?: () => void;
     }>({
         isOpen: false,
         title: "",
@@ -181,19 +224,18 @@ export function useConfirm() {
                     resolve(true);
                     setDialogState(prev => ({ ...prev, isOpen: false }));
                 },
+                onCancel: () => {
+                    resolve(false);
+                    setDialogState(prev => ({ ...prev, isOpen: false }));
+                },
             });
-
-            // Auto-resolve false on close without confirm
-            const closeHandler = () => {
-                resolve(false);
-            };
         });
     };
 
     const closeDialog = () => {
-        if (dialogState.onConfirm) {
-            // User cancelled
-            setDialogState(prev => ({ ...prev, isOpen: false }));
+        // Call onCancel callback if it exists
+        if (dialogState.onCancel) {
+            dialogState.onCancel();
         }
     };
 

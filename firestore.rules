@@ -104,6 +104,15 @@ service cloud.firestore {
         allow read: if isOwner(userId);
         allow write: if isOwner(userId);
       }
+      
+      // ============================================================================
+      // FOCUS SESSIONS SUBCOLLECTION
+      // ============================================================================
+      match /focusSessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update, delete: if isOwner(userId);
+      }
     }
     
     // ============================================================================

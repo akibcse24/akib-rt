@@ -328,6 +328,7 @@ export const AchievementsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
 
     const [recentUnlock, setRecentUnlock] = useState<Achievement | null>(null);
+    const [focusMinutes, setFocusMinutes] = useState(0);
 
     // Load progress from Firestore
     useEffect(() => {
@@ -341,6 +342,11 @@ export const AchievementsProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 if (docSnap.exists()) {
                     setProgress(docSnap.data() as UserProgress);
                 }
+
+                // Also load focus minutes
+                const { getTotalFocusMinutes } = await import('@/lib/focusSessionUtils');
+                const minutes = await getTotalFocusMinutes(user.uid);
+                setFocusMinutes(minutes);
             } catch (error) {
                 console.error("Failed to load gamification progress:", error);
             }
@@ -348,6 +354,23 @@ export const AchievementsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
         loadProgress();
     }, [user]);
+
+    // Reload focus minutes when tasks change (as indicator of activity)
+    useEffect(() => {
+        if (!user) return;
+
+        const reloadFocusMinutes = async () => {
+            try {
+                const { getTotalFocusMinutes } = await import('@/lib/focusSessionUtils');
+                const minutes = await getTotalFocusMinutes(user.uid);
+                setFocusMinutes(minutes);
+            } catch (error) {
+                console.error("Failed to reload focus minutes:", error);
+            }
+        };
+
+        reloadFocusMinutes();
+    }, [user, tasks.length]); // Reload when task count changes
 
     // Save progress to Firestore
     const saveProgress = useCallback(async (newProgress: UserProgress) => {
@@ -439,9 +462,9 @@ export const AchievementsProvider: React.FC<{ children: React.ReactNode }> = ({ 
             weekendCompleted,
             perfectDays,
             goalsCompleted: 0, // TODO: integrate with GoalContext
-            focusMinutes: 0, // TODO: integrate with FocusTimer
+            focusMinutes, // NOW USING REAL DATA!
         };
-    }, [tasks, getCompletionRate]);
+    }, [tasks, getCompletionRate, focusMinutes]);
 
     // Calculate level from XP
     const level = useMemo(() => {
