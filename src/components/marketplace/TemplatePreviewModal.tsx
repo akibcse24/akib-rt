@@ -7,6 +7,7 @@ import { Download, Clock, Calendar, CheckCircle } from "lucide-react";
 import { MarketplaceTemplate } from "@/data/marketplaceTemplates";
 import { useTask, Task } from "@/context/TaskContext";
 import { v4 as uuidv4 } from "uuid";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 
 interface TemplatePreviewModalProps {
     isOpen: boolean;
@@ -20,15 +21,28 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
     template,
 }) => {
     const { replaceAllTasks, tasks } = useTask();
+    const { confirm, ConfirmDialogComponent } = useConfirm();
 
     if (!template) return null;
 
     const handleApply = async () => {
-        const confirmMessage = tasks.length > 0
-            ? `This will replace your ${tasks.length} existing tasks with the "${template.name}" template. Continue?`
-            : `Apply the "${template.name}" template?`;
+        const message = tasks.length > 0
+            ? `Apply "${template.name}" template?`
+            : `Apply "${template.name}" template?`;
 
-        if (confirm(confirmMessage)) {
+        const description = tasks.length > 0
+            ? `This will replace your ${tasks.length} existing task${tasks.length > 1 ? 's' : ''} with ${template.tasks.length} tasks from this template.`
+            : `This will add ${template.tasks.length} tasks from this template to your schedule.`;
+
+        const confirmed = await confirm({
+            title: message,
+            description,
+            confirmText: "Apply Template",
+            cancelText: "Cancel",
+            type: "warning"
+        });
+
+        if (confirmed) {
             const newTasks: Task[] = template.tasks.map((t) => ({
                 ...t,
                 id: uuidv4(),
@@ -153,6 +167,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
                     </Button>
                 </div>
             </div>
+            {ConfirmDialogComponent}
         </Modal>
     );
 };

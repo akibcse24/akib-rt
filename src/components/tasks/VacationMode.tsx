@@ -19,27 +19,43 @@ export const VacationMode: React.FC<VacationModeProps> = ({ onClose }) => {
     const [isActive, setIsActive] = useState(false);
     const [preserveStreak, setPreserveStreak] = useState(true);
 
-    const handleActivate = () => {
+    const handleActivate = async () => {
         // In a full implementation, this would:
         // 1. Store vacation dates in user profile
         // 2. Pause all recurring tasks
         // 3. Optionally preserve streak by excluding vacation days
-        setIsActive(true);
 
-        // Show confirmation
-        toast.success("🏝️ Vacation Mode activated!", {
-            description: `From ${format(parseISO(startDate), "MMM d, yyyy")} to ${format(parseISO(endDate), "MMM d, yyyy")}. All recurring tasks will be paused.`,
-            duration: 5000,
-        });
+        try {
+            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate async operation
 
-        onClose?.();
+            setIsActive(true);
+
+            // Show confirmation
+            toast.success("🏝️ Vacation Mode activated!", {
+                description: `From ${format(parseISO(startDate), "MMM d, yyyy")} to ${format(parseISO(endDate), "MMM d, yyyy")}. All recurring tasks will be paused.`,
+                duration: 5000,
+            });
+
+            onClose?.();
+        } catch (error) {
+            toast.error("Failed to activate vacation mode", {
+                description: "Please try again later",
+            });
+        }
     };
 
-    const handleDeactivate = () => {
-        setIsActive(false);
-        toast.success("✅ Vacation Mode deactivated", {
-            description: "All tasks have been resumed!",
-        });
+    const handleDeactivate = async () => {
+        try {
+            await new Promise(resolve => setTimeout(resolve, 300)); // Simulate async operation
+
+            setIsActive(false);
+
+            toast.success("✅ Vacation Mode deactivated", {
+                description: "All tasks have been resumed!",
+            });
+        } catch (error) {
+            toast.error("Failed to deactivate vacation mode");
+        }
     };
 
     const daysDiff = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));

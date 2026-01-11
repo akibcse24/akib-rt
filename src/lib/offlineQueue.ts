@@ -4,6 +4,7 @@
 // Queues operations when offline and syncs when connection is restored.
 
 import { toast } from "sonner";
+import { showSyncProgressToast } from "./firestoreUtils";
 
 // Operation types
 export type OperationType = "ADD" | "UPDATE" | "DELETE" | "TOGGLE";
@@ -141,16 +142,23 @@ export function initializeOfflineDetection(onSync: () => Promise<void>): () => v
         isOnline = true;
         console.log("[OfflineQueue] Connection restored");
 
+        const pendingCount = getPendingCount();
         if (hasPendingOperations()) {
             toast.info("Connection restored", {
-                description: `Syncing ${getPendingCount()} pending changes...`,
+                description: `Preparing to sync ${pendingCount} pending changes...`,
+                duration: 2000,
             });
 
+            // Use the sync progress toast
+            const syncProgress = showSyncProgressToast(pendingCount);
+
             try {
+                // Note: The actual sync logic should update progress
+                // For now, we'll just call the callback
                 await onSync();
-                toast.success("All changes synced!");
+                syncProgress.complete(true);
             } catch (error) {
-                toast.error("Some changes failed to sync");
+                syncProgress.complete(false);
             }
         }
     };

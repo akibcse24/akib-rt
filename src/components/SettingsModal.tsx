@@ -9,6 +9,7 @@ import { useAI, AIPlatform } from "@/context/AIContext";
 import { Bell, Download, Upload, Trash2, LogOut, ShieldAlert, Database, Bot, Sparkles } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { doc, writeBatch, getDoc, updateDoc } from "firebase/firestore";
+import { useConfirm } from "./ui/ConfirmDialog";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { tasks, templates, replaceAllTasks } = useTask();
   const { user, logout } = useAuth();
   const { aiEnabled, setAiEnabled, aiPlatform, setAiPlatform } = useAI();
+  const { confirm, ConfirmDialogComponent } = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPublic, setIsPublic] = React.useState(true);
 
@@ -66,7 +68,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
       try {
         const data = JSON.parse(event.target?.result as string);
         if (data.tasks || data.templates) {
-          if (confirm("Restoring will overwrite your current cloud data. Are you sure?")) {
+          const confirmed = await confirm({
+            title: "Restore backup data?",
+            description: "This will overwrite all your current cloud data with the data from this backup file. This action cannot be undone.",
+            confirmText: "Restore Data",
+            cancelText: "Cancel",
+            type: "warning"
+          });
+
+          if (confirmed) {
             if (Array.isArray(data.tasks)) {
               await replaceAllTasks(data.tasks);
             }
@@ -92,7 +102,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   const handleClearData = async () => {
     if (!user) return;
-    if (confirm("Are you sure you want to clear ALL cloud data? This cannot be undone.")) {
+
+    const confirmed = await confirm({
+      title: "Clear ALL cloud data?",
+      description: "This will permanently delete all your tasks and templates from the cloud. This action cannot be undone and your data will be lost forever.",
+      confirmText: "Delete Everything",
+      cancelText: "Keep My Data",
+      type: "danger"
+    });
+
+    if (confirmed) {
       try {
         const batch = writeBatch(db);
         tasks.forEach(t => {
@@ -318,6 +337,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           </p>
         </div>
       </div>
+      {ConfirmDialogComponent}
     </Modal>
   );
 };

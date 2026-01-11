@@ -153,3 +153,170 @@ export function showInfo(message: string, description?: string): void {
         duration: 3000,
     });
 }
+
+// ============================================================================
+// OPTIMISTIC UI TOAST UTILITIES
+// ============================================================================
+
+/**
+ * Shows an optimistic toast with loading → success → error state transitions.
+ * Uses Sonner's promise-based toast for smooth UX.
+ * 
+ * @param operation - Async operation to execute
+ * @param messages - Toast messages for each state
+ * @returns The result of the operation
+ * 
+ * @example
+ * ```ts
+ * await showOptimisticToast(
+ *   () => addTaskToFirestore(task),
+ *   {
+ *     loading: "Creating task...",
+ *     success: "Task created! 🎉",
+ *     error: "Failed to create task"
+ *   }
+ * );
+ * ```
+ */
+export async function showOptimisticToast<T>(
+    operation: () => Promise<T>,
+    messages: {
+        loading: string;
+        success: string | ((data: T) => string);
+        error?: string | ((error: any) => string);
+    }
+): Promise<T> {
+    const toastPromise = toast.promise(
+        operation(),
+        {
+            loading: messages.loading,
+            success: messages.success,
+            error: messages.error || "Operation failed",
+            duration: 3000,
+        }
+    );
+
+    // Use unwrap to get the actual promise result
+    return toastPromise.unwrap();
+}
+
+/**
+ * Shows a toast with an undo button for destructive actions.
+ * The action is delayed by 5 seconds, giving users time to undo.
+ * 
+ * @param message - The toast message
+ * @param onConfirm - Callback executed after delay if not undone
+ * @param onUndo - Callback executed if user clicks undo
+ * @returns Toast ID for manual dismissal if needed
+ * 
+ * @example
+ * ```ts
+ * showUndoableToast(
+ *   "Task deleted",
+ *   () => deleteFromFirestore(taskId),
+ *   () => restoreTask(task)
+ * );
+ * ```
+ */
+export function showUndoableToast(
+    message: string,
+    onConfirm: () => void | Promise<void>,
+    onUndo?: () => void | Promise<void>
+): string | number {
+    let undone = false;
+
+    const toastId = toast.success(message, {
+        duration: 5000,
+        action: {
+            label: "Undo",
+            onClick: async () => {
+                undone = true;
+                toast.dismiss(toastId);
+
+                if (onUndo) {
+                    await onUndo();
+                }
+
+                toast.success("Action cancelled", {
+                    duration: 2000,
+                });
+            },
+        },
+    });
+
+    // Execute the destructive action after delay if not undone
+    setTimeout(async () => {
+        if (!undone) {
+            await onConfirm();
+        }
+    }, 5000);
+
+    return toastId;
+}
+
+/**
+ * Shows a celebration toast with confetti emoji for achievements.
+ * 
+ * @param message - The celebration message
+ * @param points - Optional points earned
+ */
+export function showCelebrationToast(
+    message: string,
+    points?: number
+): void {
+    const fullMessage = points
+        ? `${message} +${points} points! 🎯`
+        : `${message} 🎉`;
+
+    toast.success(fullMessage, {
+        duration: 3000,
+        className: "celebration-toast",
+    });
+}
+
+/**
+ * Shows a sync progress toast that updates as items are processed.
+ * 
+ * @param total - Total number of items to sync
+ * @returns Object with update and complete methods
+ * 
+ * @example
+ * ```ts
+ * const sync = showSyncProgressToast(5);
+ * for (let i = 0; i < 5; i++) {
+ *   await syncItem(items[i]);
+ *   sync.update(i + 1);
+ * }
+ * sync.complete();
+ * ```
+ */
+export function showSyncProgressToast(total: number) {
+    let current = 0;
+
+    const toastId = toast.loading(`Syncing changes... (0/${total})`, {
+        duration: Infinity,
+    });
+
+    return {
+        update: (completed: number) => {
+            current = completed;
+            toast.loading(`Syncing changes... (${completed}/${total})`, {
+                id: toastId,
+                duration: Infinity,
+            });
+        },
+        complete: (success: boolean = true) => {
+            toast.dismiss(toastId);
+            if (success) {
+                toast.success(`All changes synced! ✅`, {
+                    duration: 3000,
+                });
+            } else {
+                toast.error(`Some changes failed to sync`, {
+                    description: "Please check your connection and try again",
+                    duration: 5000,
+                });
+            }
+        },
+    };
+}

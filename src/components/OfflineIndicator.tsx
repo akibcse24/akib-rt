@@ -55,39 +55,39 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ className = 
 
     return (
         <div
-            className={`fixed bottom-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium shadow-lg transition-all duration-300 ${!isOnline
-                    ? "bg-amber-500/90 text-white"
-                    : isSyncing
-                        ? "bg-blue-500/90 text-white"
-                        : pendingCount > 0
-                            ? "bg-orange-500/90 text-white"
-                            : "bg-green-500/90 text-white"
+            className={`fixed bottom-4 left-4 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium shadow-lg transition-all duration-300 backdrop-blur-md ${!isOnline
+                ? "bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white border border-blue-400/30"
+                : isSyncing
+                    ? "bg-gradient-to-r from-green-500/90 to-emerald-500/90 text-white border border-green-400/30 shadow-green-500/20"
+                    : pendingCount > 0
+                        ? "bg-gradient-to-r from-orange-500/90 to-amber-500/90 text-white border border-orange-400/30"
+                        : "bg-gradient-to-r from-green-500/90 to-emerald-500/90 text-white border border-green-400/30"
                 } ${className}`}
         >
             {!isOnline ? (
                 <>
                     <WifiOff className="w-4 h-4" />
-                    <span>Offline</span>
+                    <span className="font-semibold">Working Offline</span>
                     {pendingCount > 0 && (
-                        <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">
-                            {pendingCount} pending
+                        <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs font-bold">
+                            {pendingCount} queued
                         </span>
                     )}
                 </>
             ) : isSyncing ? (
                 <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Syncing...</span>
+                    <span className="font-semibold">Syncing data...</span>
                 </>
             ) : pendingCount > 0 ? (
                 <>
                     <CloudOff className="w-4 h-4" />
-                    <span>{pendingCount} pending</span>
+                    <span className="font-semibold">{pendingCount} pending</span>
                 </>
             ) : (
                 <>
                     <Cloud className="w-4 h-4" />
-                    <span>Synced</span>
+                    <span className="font-semibold">All synced</span>
                 </>
             )}
         </div>

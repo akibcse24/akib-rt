@@ -93,8 +93,14 @@ ${review || ""}
             if (navigator.share) {
                 await navigator.share({ text: shareText });
             } else {
-                await navigator.clipboard.writeText(shareText);
-                toast.success("Copied to clipboard!");
+                await toast.promise(
+                    navigator.clipboard.writeText(shareText),
+                    {
+                        loading: "Copying...",
+                        success: "Copied to clipboard! 📋",
+                        error: "Failed to copy"
+                    }
+                );
             }
         } catch (err) {
             console.error(err);

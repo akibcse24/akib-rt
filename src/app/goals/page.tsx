@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { handleFirestoreError, withRetry } from "@/lib/firestoreUtils";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import {
   collection,
   onSnapshot,
@@ -22,6 +23,7 @@ import {
 
 export default function GoalsPage() {
   const { user } = useAuth();
+  const { confirm, ConfirmDialogComponent } = useConfirm();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [goalToEdit, setGoalToEdit] = useState<Goal | undefined>(undefined);
@@ -79,7 +81,16 @@ export default function GoalsPage() {
 
   const handleDeleteGoal = async (id: string) => {
     if (!user) return;
-    if (confirm("Are you sure you want to delete this goal?")) {
+
+    const confirmed = await confirm({
+      title: "Delete this goal?",
+      description: "This will permanently delete this goal and all its milestones. This action cannot be undone.",
+      confirmText: "Delete Goal",
+      cancelText: "Cancel",
+      type: "danger"
+    });
+
+    if (confirmed) {
       await deleteDoc(doc(db, "users", user.uid, "goals", id));
     }
   };
@@ -220,6 +231,8 @@ export default function GoalsPage() {
         onSave={handleSaveGoal}
         goalToEdit={goalToEdit}
       />
+
+      {ConfirmDialogComponent}
     </div>
   );
 }

@@ -30,11 +30,11 @@ export const GoalModal: React.FC<GoalModalProps> = ({
 
     useEffect(() => {
         if (goalToEdit) {
-            setTitle(goalToEdit.title);
-            setDescription(goalToEdit.description);
-            setIcon(goalToEdit.icon);
-            setTargetDate(goalToEdit.targetDate.split("T")[0]);
-            setMilestones(goalToEdit.milestones);
+            setTitle(goalToEdit.title || "");
+            setDescription(goalToEdit.description || "");
+            setIcon(goalToEdit.icon || "🎯");
+            setTargetDate(goalToEdit.targetDate ? goalToEdit.targetDate.split("T")[0] : "");
+            setMilestones(goalToEdit.milestones || []);
         } else {
             resetForm();
         }

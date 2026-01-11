@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
         const message = sanitizePlainText(body.message);
         const context = body.context;
         const conversationHistory = body.conversationHistory;
+        const currentDate = body.currentDate; // Real-time date from browser
 
         if (!message) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -92,6 +93,11 @@ export async function POST(request: NextRequest) {
 
         // Build context with task IDs, completion status, and streaks
         let contextMessage = SYSTEM_PROMPT;
+
+        // Add current date to context
+        if (currentDate) {
+            contextMessage += `\n\n## CURRENT DATE:\nToday is ${currentDate}. Use this as the reference for "today", "now", and any date-related queries.`;
+        }
 
         if (context?.tasks?.length) {
             const taskList = context.tasks.map((t: any) => {

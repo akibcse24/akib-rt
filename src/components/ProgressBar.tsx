@@ -6,6 +6,7 @@ import { useTask } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "./ui/Button";
 import { Plus, RotateCcw, Calendar as CalendarIcon, Activity, Sparkles, Clock, Trophy, Zap } from "lucide-react";
+import { useConfirm } from "./ui/ConfirmDialog";
 
 interface ProgressBarProps {
   onAddTask: () => void;
@@ -62,6 +63,7 @@ const quotes = [
 const ProgressBar: React.FC<ProgressBarProps> = ({ onAddTask }) => {
   const { dailyProgress, completedTasksToday, totalTasksToday, todayDate, resetDay, tasks } = useTask();
   const { user } = useAuth();
+  const { confirm, ConfirmDialogComponent } = useConfirm();
   const [showCelebration, setShowCelebration] = useState(false);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [animatedProgress, setAnimatedProgress] = useState(0);
@@ -218,8 +220,15 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ onAddTask }) => {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => {
-                if (confirm("Are you sure you want to reset all tasks for today?")) resetDay();
+              onClick={async () => {
+                const confirmed = await confirm({
+                  title: "Reset all tasks for today?",
+                  description: "This will uncheck all completed tasks for today. This action cannot be undone.",
+                  confirmText: "Reset Today",
+                  cancelText: "Cancel",
+                  type: "warning"
+                });
+                if (confirmed) resetDay();
               }}
               className="bg-white/10 hover:bg-white/20 text-white font-bold border border-white/20 h-11 sm:h-14 rounded-xl sm:rounded-2xl px-4 sm:px-6 backdrop-blur-sm text-sm sm:text-base"
             >
@@ -277,8 +286,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ onAddTask }) => {
             {/* Status Badge */}
             <div className="flex items-center gap-2 group">
               <div className={`flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full transition-all ${dailyProgress === 100 && totalTasksToday > 0
-                  ? "bg-yellow-500/20 text-yellow-400 animate-pulse"
-                  : "bg-green-500/20 text-green-400"
+                ? "bg-yellow-500/20 text-yellow-400 animate-pulse"
+                : "bg-green-500/20 text-green-400"
                 } group-hover:scale-110`}>
                 {dailyProgress === 100 && totalTasksToday > 0 ? (
                   <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -338,6 +347,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ onAddTask }) => {
           animation: pulse-slow 3s ease-in-out infinite;
         }
       `}</style>
+      {ConfirmDialogComponent}
     </div>
   );
 };

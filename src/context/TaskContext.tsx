@@ -14,7 +14,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid"; // Used to generate unique IDs for tasks
 import { format, subDays } from "date-fns"; // Date formatting helpers
 import { db } from "@/lib/firebase"; // Firestore instance
-import { withRetry, handleFirestoreError, showSuccess } from "@/lib/firestoreUtils";
+import { withRetry, handleFirestoreError, showSuccess, showOptimisticToast, showUndoableToast, showCelebrationToast } from "@/lib/firestoreUtils";
 import {
   collection,
   onSnapshot,
@@ -99,6 +99,9 @@ interface TaskContextType {
   calculateStreak: (task: Task) => number;
   getCompletionRate: (days?: number) => number;
 
+  // Network Status
+  isOnline: boolean;
+
   loading: boolean;
 }
 
@@ -115,6 +118,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [todayDate] = useState<Date>(new Date());
   const [templates, setTemplates] = useState<Record<string, Task[]>>({});
   const [loading, setLoading] = useState(true);
+  const [isOnline, setIsOnline] = useState(true);
 
   // 3. FIRESTORE REAL-TIME LISTENERS
   // ----------------------------------------------------------------------------
@@ -135,6 +139,12 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const cachedTemplates = localStorage.getItem(`rt_templates_${user.uid}`);
       if (cachedTasks) setTasks(JSON.parse(cachedTasks));
       if (cachedTemplates) setTemplates(JSON.parse(cachedTemplates));
+
+      // CRITICAL FIX: If we have cached data and we're offline, stop loading immediately
+      // This prevents infinite "Syncing..." screen when refreshing offline
+      if ((cachedTasks || cachedTemplates) && !navigator.onLine) {
+        setLoading(false);
+      }
     } catch (e) {
       console.warn("Failed to load cached tasks");
     }
@@ -146,14 +156,22 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listener 1: Tasks
     const unsubscribeTasks = onSnapshot(tasksRef, (snapshot) => {
       const fetchedTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Task));
-      setTasks(fetchedTasks);
+
+      // CRITICAL: Only update tasks if we actually have data OR if we're online
+      // This prevents overwriting cached data with empty snapshots when offline
+      if (fetchedTasks.length > 0 || navigator.onLine) {
+        setTasks(fetchedTasks);
+      }
+      // If offline and no data from Firestore, keep existing cached tasks
+
       setLoading(false);
 
-      // Update Cache
-      try {
-        localStorage.setItem(`rt_tasks_${user.uid}`, JSON.stringify(fetchedTasks));
-      } catch (e) { }
-
+      // Update Cache (only if we have data to cache)
+      if (fetchedTasks.length > 0) {
+        try {
+          localStorage.setItem(`rt_tasks_${user.uid}`, JSON.stringify(fetchedTasks));
+        } catch (e) { }
+      }
     }, (error) => {
       console.error("Firestore Tasks Error:", error);
       // If offline, we keep the cached data and just stop loading
@@ -166,12 +184,18 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       snapshot.docs.forEach(doc => {
         fetchedTemplates[doc.id] = doc.data().tasks as Task[];
       });
-      setTemplates(fetchedTemplates);
 
-      // Update Cache
-      try {
-        localStorage.setItem(`rt_templates_${user.uid}`, JSON.stringify(fetchedTemplates));
-      } catch (e) { }
+      // Only update if we have data OR are online (same logic as tasks)
+      if (Object.keys(fetchedTemplates).length > 0 || navigator.onLine) {
+        setTemplates(fetchedTemplates);
+      }
+
+      // Update Cache (only if we have data)
+      if (Object.keys(fetchedTemplates).length > 0) {
+        try {
+          localStorage.setItem(`rt_templates_${user.uid}`, JSON.stringify(fetchedTemplates));
+        } catch (e) { }
+      }
     }, (error) => {
       console.error("Firestore Templates Error:", error);
     });
@@ -182,6 +206,23 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unsubscribeTemplates();
     };
   }, [user]);
+
+  // Track Online/Offline Status
+  useEffect(() => {
+    // Set initial online status
+    setIsOnline(navigator.onLine);
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   // 4. CRUD OPERATIONS
   // ----------------------------------------------------------------------------
@@ -210,14 +251,20 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     try {
-      await withRetry(
-        () => setDoc(doc(db, "users", user.uid, "tasks", newTask.id), firestoreData),
-        { operationName: "Add task" }
+      await showOptimisticToast(
+        () => withRetry(
+          () => setDoc(doc(db, "users", user.uid, "tasks", newTask.id), firestoreData),
+          { operationName: "Add task", silent: true }
+        ),
+        {
+          loading: "Creating task...",
+          success: `Task created! ${newTask.icon || "✅"}`,
+          error: "Failed to create task"
+        }
       );
     } catch (error: any) {
       // ROLLBACK: Remove from local state on failure
       setTasks(prev => prev.filter(t => t.id !== newTask.id));
-      handleFirestoreError(error, "Add task");
     }
   };
 
@@ -251,28 +298,38 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // DELETE TASK (Optimistic Update)
+  // DELETE TASK (Optimistic Update with Undo)
   const deleteTask = async (id: string) => {
     if (!user) return;
 
     // Save task for potential rollback
     const deletedTask = tasks.find(t => t.id === id);
+    if (!deletedTask) return;
 
     // OPTIMISTIC: Remove from local state immediately
     setTasks(prev => prev.filter(t => t.id !== id));
 
-    try {
-      await withRetry(
-        () => deleteDoc(doc(db, "users", user.uid, "tasks", id)),
-        { operationName: "Delete task" }
-      );
-    } catch (error: any) {
-      // ROLLBACK: Restore deleted task on failure
-      if (deletedTask) {
+    // Show undoable toast
+    showUndoableToast(
+      `Task deleted ${deletedTask.icon || "🗑️"}`,
+      // OnConfirm: Delete from Firestore after 5 seconds
+      async () => {
+        try {
+          await withRetry(
+            () => deleteDoc(doc(db, "users", user.uid, "tasks", id)),
+            { operationName: "Delete task", silent: true }
+          );
+        } catch (error: any) {
+          // ROLLBACK: Restore task on failure
+          setTasks(prev => [...prev, deletedTask]);
+          handleFirestoreError(error, "Delete task");
+        }
+      },
+      // OnUndo: Restore task immediately
+      () => {
         setTasks(prev => [...prev, deletedTask]);
       }
-      handleFirestoreError(error, "Delete task");
-    }
+    );
   };
 
   // TOGGLE TASK COMPLETION (Optimistic Update)
@@ -302,6 +359,11 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTasks(prev => prev.map(t =>
       t.id === id ? { ...t, ...updates } : t
     ));
+
+    // Show celebration toast for completion (not for un-completion)
+    if (!isCurrentlyCompleted) {
+      showCelebrationToast(task.title, 10);
+    }
 
     // 2. Calculate global stats for the new state
     const simulatedTasks = tasks.map(t =>
@@ -373,7 +435,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       await withRetry(
         () => batch.commit(),
-        { operationName: "Toggle completion" }
+        { operationName: "Toggle completion", silent: true }
       );
 
     } catch (error: any) {
@@ -607,6 +669,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
         replaceAllTasks,
         calculateStreak,
         getCompletionRate,
+        isOnline,
         loading
       }}
     >

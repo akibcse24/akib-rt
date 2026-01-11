@@ -10,6 +10,7 @@ import { Save, Download, LayoutTemplate, Star, Sparkles } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useConfirm } from "./ui/ConfirmDialog";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,10 +24,19 @@ interface TemplatesModalProps {
 const TemplatesModal: React.FC<TemplatesModalProps> = ({ isOpen, onClose }) => {
   const { saveAsTemplate, applyTemplate, templates, replaceAllTasks } = useTask();
   const { sendMessage, isLoading: isAiLoading } = useAI();
+  const { confirm, ConfirmDialogComponent } = useConfirm();
   const [newTemplateName, setNewTemplateName] = useState("");
 
   const handleMagicRoutine = async () => {
-    if (confirm("Generate a magical morning routine? This will append tasks to your current schedule.")) {
+    const confirmed = await confirm({
+      title: "Generate magical routine?",
+      description: "AI will create a personalized morning routine and append tasks to your current schedule.",
+      confirmText: "Generate",
+      cancelText: "Cancel",
+      type: "info"
+    });
+
+    if (confirmed) {
       await sendMessage("Generate a 3-step morning productivity routine for me with time blocks.");
       onClose();
     }
@@ -39,8 +49,16 @@ const TemplatesModal: React.FC<TemplatesModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleApply = (name: string) => {
-    if (confirm(`Apply "${name}" template? This will replace current tasks.`)) {
+  const handleApply = async (name: string) => {
+    const confirmed = await confirm({
+      title: `Apply "${name}" template?`,
+      description: "This will replace all your current tasks with the tasks from this template.",
+      confirmText: "Apply Template",
+      cancelText: "Cancel",
+      type: "warning"
+    });
+
+    if (confirmed) {
       applyTemplate(name);
       onClose();
     }
@@ -57,8 +75,16 @@ const TemplatesModal: React.FC<TemplatesModalProps> = ({ isOpen, onClose }) => {
     { title: "Lecture", icon: "🎓", startTime: "10:00", endTime: "12:00", timeBlock: "Morning", days: ["MON", "WED", "FRI"] },
   ];
 
-  const applyPreset = (presetName: string, presetTasks: Omit<Task, "id" | "isCompleted" | "completionHistory">[]) => {
-    if (confirm(`Apply "${presetName}" preset? This will overwrite current tasks.`)) {
+  const applyPreset = async (presetName: string, presetTasks: Omit<Task, "id" | "isCompleted" | "completionHistory">[]) => {
+    const confirmed = await confirm({
+      title: `Apply "${presetName}" preset?`,
+      description: "This will overwrite all your current tasks with this preset routine.",
+      confirmText: "Apply Preset",
+      cancelText: "Cancel",
+      type: "warning"
+    });
+
+    if (confirmed) {
       const newTasks: Task[] = presetTasks.map(t => ({
         ...t,
         id: uuidv4(),
@@ -177,6 +203,7 @@ const TemplatesModal: React.FC<TemplatesModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
+      {ConfirmDialogComponent}
     </Modal>
   );
 };

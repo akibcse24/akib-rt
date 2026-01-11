@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "./ui/Button";
 import { X, ChevronRight, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import { collection, query, where, getDocs, limit } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface TourStep {
     title: string;
@@ -36,25 +39,76 @@ const STEPS: TourStep[] = [
     },
 ];
 
+// App version - increment this when there are major updates
+const APP_VERSION = "1.0.0";
+
 const OnboardingTour: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
+    const { user } = useAuth();
 
     useEffect(() => {
-        // Check if user has seen the tour
-        let hasSeen = "false";
-        try {
-            hasSeen = localStorage.getItem("rt_has_seen_tour") || "false";
-        } catch (e) {
-            hasSeen = "true";
-        }
+        const checkIfShouldShowTour = async () => {
+            if (!user) return;
 
-        if (!hasSeen || hasSeen === "false") {
-            // Small delay to allow UI to load
-            const timer = setTimeout(() => setIsOpen(true), 1500);
-            return () => clearTimeout(timer);
-        }
-    }, []);
+            try {
+                // Check if user has seen this version of the tour
+                const tourData = localStorage.getItem("rt_tour_data");
+                let shouldShow = true;
+
+                if (tourData) {
+                    const { version, hasSeen } = JSON.parse(tourData);
+
+                    // If user has seen the current version, don't show
+                    if (hasSeen && version === APP_VERSION) {
+                        shouldShow = false;
+                    }
+                }
+
+                // For existing users (old accounts), check if they have any tasks
+                // If they have tasks, they're an existing user - skip tour unless version changed
+                if (shouldShow) {
+                    const tasksRef = collection(db, "tasks");
+                    const userTasksQuery = query(
+                        tasksRef,
+                        where("userId", "==", user.uid),
+                        limit(1)
+                    );
+
+                    const snapshot = await getDocs(userTasksQuery);
+
+                    // If user has existing tasks, they're not a new user
+                    if (!snapshot.empty) {
+                        const tourData = localStorage.getItem("rt_tour_data");
+                        if (tourData) {
+                            const { version } = JSON.parse(tourData);
+                            // Only show if version changed (indicating an update)
+                            if (version === APP_VERSION) {
+                                shouldShow = false;
+                            }
+                        } else {
+                            // Old user without tour data - mark as seen without showing
+                            localStorage.setItem("rt_tour_data", JSON.stringify({
+                                version: APP_VERSION,
+                                hasSeen: true
+                            }));
+                            shouldShow = false;
+                        }
+                    }
+                }
+
+                if (shouldShow) {
+                    // Small delay to allow UI to load
+                    const timer = setTimeout(() => setIsOpen(true), 1500);
+                    return () => clearTimeout(timer);
+                }
+            } catch (e) {
+                console.error("Error checking tour status:", e);
+            }
+        };
+
+        checkIfShouldShowTour();
+    }, [user]);
 
     const handleNext = () => {
         if (currentStep < STEPS.length - 1) {
@@ -67,15 +121,27 @@ const OnboardingTour: React.FC = () => {
     const handleComplete = () => {
         setIsOpen(false);
         try {
-            localStorage.setItem("rt_has_seen_tour", "true");
-        } catch (e) { }
+            localStorage.setItem("rt_tour_data", JSON.stringify({
+                version: APP_VERSION,
+                hasSeen: true,
+                completedAt: new Date().toISOString()
+            }));
+        } catch (e) {
+            console.error("Error saving tour completion:", e);
+        }
     };
 
     const handleSkip = () => {
         setIsOpen(false);
         try {
-            localStorage.setItem("rt_has_seen_tour", "true");
-        } catch (e) { }
+            localStorage.setItem("rt_tour_data", JSON.stringify({
+                version: APP_VERSION,
+                hasSeen: true,
+                skippedAt: new Date().toISOString()
+            }));
+        } catch (e) {
+            console.error("Error saving tour skip:", e);
+        }
     };
 
     if (!isOpen) return null;

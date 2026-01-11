@@ -112,11 +112,21 @@ export const AIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
                 content: m.content,
             }));
 
+            // Get current date from browser for accurate AI responses
+            const now = new Date();
+            const currentDate = now.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+
             const response = await fetch(getChatEndpoint(), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message,
+                    currentDate, // Send real-time date from browser
                     context: {
                         tasks: tasks.slice(0, 20), // Send more tasks for better context
                         goals: goals.slice(0, 10),
