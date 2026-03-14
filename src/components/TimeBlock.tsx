@@ -41,41 +41,44 @@ const TimeBlock: React.FC<TimeBlockProps> = ({ block, timeRange, onEditTask }) =
   };
 
   return (
-    <div className={`group flex flex-col h-full rounded-[2.5rem] bg-card border ${colors[block]} p-8 transition-all duration-300 hover:shadow-lg shadow-sm overflow-hidden relative`}>
-      {/* Background Progress Glow */}
+    <div className={`group flex flex-col h-full brutal-card border-4 border-foreground bg-card p-8 transition-all duration-200 hover:brutal-shadow-lg relative`}>
+      {/* Visual Marker for progress */}
       <div
-        className="absolute bottom-0 left-0 h-1 bg-muted w-full transition-all duration-1000"
-        style={{ background: `linear-gradient(to right, currentColor ${progress}%, transparent ${progress}%)` }}
+        className="absolute top-0 left-0 h-4 bg-primary transition-all duration-1000 brutal-border border-b-2 border-r-2 border-foreground"
+        style={{ width: `${progress}%` }}
       />
-
-      <div className="mb-8 flex items-start justify-between">
-        <div className="flex items-center gap-5">
-          <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-muted border border-border shadow-sm transition-transform group-hover:scale-105`}>
+ 
+      <div className="mb-10 mt-4 flex items-start justify-between">
+        <div className="flex items-center gap-6">
+          <div className={`flex h-20 w-20 items-center justify-center brutal-border border-4 bg-background shadow-none transition-transform group-hover:scale-105`}>
             {getBlockIcon()}
           </div>
           <div className="space-y-1">
-            <h3 className="text-2xl font-bold text-foreground tracking-tight">{block}</h3>
-            <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted px-3 py-1 rounded-full w-fit">
-              <Clock className="w-3 h-3 opacity-60" />
+            <h3 className="text-3xl font-black text-foreground uppercase tracking-widest italic leading-none">{block}</h3>
+            <div className="flex items-center gap-2 text-xs font-black text-muted-foreground uppercase tracking-[0.15em] bg-muted px-4 py-1 brutal-border border-2 w-fit">
+              <Clock className="w-4 h-4" />
               {timeRange}
             </div>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-2xl font-bold text-foreground">{completedCount}<span className="text-sm text-muted-foreground/60 font-bold">/{tasks.length}</span></span>
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">Rituals</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-5xl font-black text-foreground italic leading-none">{completedCount}</span>
+            <span className="text-xl font-bold text-muted-foreground uppercase tracking-tighter">/ {tasks.length}</span>
+          </div>
+          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest italic">Tasks</span>
         </div>
       </div>
-
-      <div className="flex-1 space-y-4">
+ 
+      <div className="flex-1 space-y-6">
         {tasks.length > 0 ? (
           tasks.map((task) => <TaskCard key={task.id} task={task} onEdit={onEditTask} />)
         ) : (
-          <div className="h-full min-h-[140px] flex flex-col items-center justify-center rounded-[2rem] border border-dashed border-border bg-muted/30 p-6 text-center group-hover:border-primary/30 transition-colors">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
-              <Sunrise className="w-5 h-5 opacity-30" />
+          <div className="h-full min-h-[160px] flex flex-col items-center justify-center brutal-border border-4 border-dashed border-foreground/30 bg-muted/20 p-8 text-center group-hover:border-primary transition-colors">
+            <div className="h-12 w-12 brutal-border border-2 bg-muted flex items-center justify-center mb-4">
+              <Sunrise className="w-6 h-6 opacity-40 text-foreground" />
             </div>
-            <p className="text-xs font-bold text-muted-foreground/50 uppercase tracking-widest">No activities scheduled</p>
+            <p className="text-sm font-black text-muted-foreground uppercase tracking-widest italic">No activities scheduled</p>
           </div>
         )}
       </div>

@@ -40,7 +40,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, classNa
 
       {/* Modal Content */}
       <div className={cn(
-        "relative w-full max-w-lg overflow-hidden rounded-[2.5rem] bg-card/95 dark:bg-card/90 backdrop-blur-2xl p-8 shadow-2xl border border-border transition-all animate-in zoom-in-95 slide-in-from-bottom-5 duration-300",
+        "relative w-full max-w-lg overflow-hidden bg-card p-8 brutal-border brutal-shadow-lg transition-all animate-in zoom-in-95 slide-in-from-bottom-5 duration-300",
         className
       )}>
         <div className="mb-6 flex items-center justify-between">

@@ -39,6 +39,13 @@ const TASK_ICONS = [
   "🎯", "📞", "✉️", "🧹", "🚿", "💊", "🌅", "🌙", "⭐", "❤️",
   "🎨", "🎵", "🎮", "📖", "✍️", "🧠", "💡", "🔥", "🌿", "🙏"
 ];
+ 
+const CATEGORY_COLORS = {
+  health: "bg-green-400",
+  work: "bg-blue-400",
+  personal: "bg-purple-400",
+  ritual: "bg-yellow-400",
+};
 
 // Auto-detect time block based on hour
 function getTimeBlockFromTime(time: string): TimeBlockType {
@@ -175,34 +182,33 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
     >
       <div className="space-y-6 py-2">
         {/* Title & Icon Section */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="md:w-28 space-y-2 shrink-0">
-            <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider pl-1">Icon</label>
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="md:w-32 space-y-3 shrink-0">
+            <label className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] italic">Icon</label>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setShowIconPicker(!showIconPicker)}
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 text-2xl hover:bg-white/10 transition-all"
+                className="flex h-16 w-full items-center justify-center gap-3 brutal-border border-4 bg-background text-4xl hover:bg-muted transition-all active:translate-y-1 active:translate-x-1"
               >
                 {icon}
-                <Smile className="w-4 h-4 text-muted-foreground" />
+                <Smile className="w-5 h-5 text-muted-foreground" />
               </button>
-
+ 
               {/* Icon Picker Dropdown */}
               {showIconPicker && (
-                <div className="absolute top-full left-0 mt-2 p-4 rounded-2xl border border-white/10 bg-black/95 backdrop-blur-xl z-50 shadow-2xl w-[280px]">
-                  <div className="grid grid-cols-5 gap-2">
+                <div className="absolute top-full left-0 mt-4 p-6 brutal-border border-4 bg-background z-50 brutal-shadow-lg w-[320px]">
+                  <div className="grid grid-cols-5 gap-3">
                     {TASK_ICONS.map((emoji) => (
                       <button
                         key={emoji}
                         type="button"
                         onClick={() => selectIcon(emoji)}
                         className={cn(
-                          "h-12 w-12 rounded-xl text-2xl flex items-center justify-center transition-all hover:bg-purple-500/20 hover:scale-110",
+                          "h-12 w-12 brutal-border border-2 text-2xl flex items-center justify-center transition-all hover:bg-primary/20 hover:scale-110",
                           "font-emoji",
-                          icon === emoji ? "bg-purple-500/30 ring-2 ring-purple-500 scale-110" : "bg-white/5"
+                          icon === emoji ? "bg-primary border-foreground brutal-shadow scale-110 -translate-y-1" : "bg-muted"
                         )}
-                        style={{ fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif" }}
                       >
                         {emoji}
                       </button>
@@ -212,61 +218,63 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
               )}
             </div>
           </div>
-          <div className="flex-1 space-y-2">
-            <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider pl-1">Task Name</label>
+          <div className="flex-1 space-y-3">
+            <label className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] italic">Task Name</label>
             <Input
               placeholder="What are you planning to do?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="h-14 bg-white/5 text-lg font-medium border-white/10"
+              className="h-16 bg-background text-xl font-black uppercase tracking-tight brutal-border border-4 placeholder:italic"
             />
           </div>
         </div>
 
         {/* Time Settings */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
-            <div className="flex items-center gap-2 text-purple-400">
-              <Clock className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Timing</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-5 p-6 brutal-border border-4 bg-muted/20">
+            <div className="flex items-center gap-3 text-foreground">
+              <Clock className="w-5 h-5" />
+              <span className="text-xs font-black uppercase tracking-widest italic">Timing</span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                label="From"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="bg-black/20 border-white/5"
-              />
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-muted-foreground pl-1 flex items-center gap-1">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">From</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="flex h-12 w-full brutal-border border-2 bg-background px-3 py-2 text-sm font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-foreground"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1">
                   Until
-                  <span className="text-[10px] text-muted-foreground/50">(optional)</span>
+                  <span className="text-[10px] opacity-40 italic">(optional)</span>
                 </label>
                 <input
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                   placeholder="Optional"
-                  className="flex h-12 w-full rounded-xl border border-white/5 bg-black/20 px-3 py-2 text-sm ring-offset-background transition-all placeholder:text-muted-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="flex h-12 w-full brutal-border border-2 bg-background px-3 py-2 text-sm font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-foreground"
                 />
               </div>
             </div>
-            <div className="pt-1">
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                Time Block <span className="text-purple-400/60">(auto-detected)</span>
+            <div className="pt-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 block italic">
+                Time Block <span className="text-primary">(Auto-Detected)</span>
               </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-2">
                 {TIME_BLOCKS.map(block => (
                   <button
                     key={block}
                     type="button"
                     onClick={() => setTimeBlock(block)}
                     className={cn(
-                      "py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider border transition-all",
+                      "py-2 brutal-border border-2 text-[10px] font-black uppercase tracking-wider transition-all",
                       timeBlock === block
-                        ? "bg-purple-500/20 border-purple-500 text-purple-400"
-                        : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                        ? "bg-primary border-foreground brutal-shadow"
+                        : "bg-background border-foreground/30 text-muted-foreground hover:bg-muted"
                     )}
                   >
                     {block}
@@ -275,23 +283,23 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
               </div>
             </div>
           </div>
-
-          <div className="space-y-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
-            <div className="flex items-center gap-2 text-purple-400">
-              <Bell className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Reminders</span>
+ 
+          <div className="space-y-5 p-6 brutal-border border-4 bg-muted/20">
+            <div className="flex items-center gap-3 text-foreground">
+              <Bell className="w-5 h-5" />
+              <span className="text-xs font-black uppercase tracking-widest italic">Reminders</span>
             </div>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-2">
               {REMINDERS.map(r => (
                 <button
                   key={r.value}
                   type="button"
                   onClick={() => setReminder(r.value)}
                   className={cn(
-                    "py-2.5 rounded-lg text-xs font-semibold border transition-all",
+                    "py-3 brutal-border border-2 text-xs font-black uppercase tracking-widest transition-all",
                     reminder === r.value
-                      ? "bg-purple-500/20 border-purple-500 text-purple-400"
-                      : "bg-black/20 border-white/5 text-muted-foreground hover:bg-white/5"
+                      ? "bg-primary border-foreground brutal-shadow text-foreground"
+                      : "bg-background border-foreground/30 text-muted-foreground hover:bg-muted"
                   )}
                 >
                   {r.label}
@@ -303,14 +311,14 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
 
         {/* Days Selection - HIDDEN if specificDate is set */}
         {!specificDate && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-purple-400">
-                <Calendar className="w-4 h-4" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Active Days</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-3 text-foreground">
+                <Calendar className="w-5 h-5" />
+                <span className="text-xs font-black uppercase tracking-widest italic">Active Days</span>
               </div>
-              <span className="text-[10px] text-muted-foreground">
-                Today: <span className="text-purple-400 font-bold">{getCurrentDayAbbr()}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest italic text-muted-foreground">
+                Today: <span className="text-primary">{getCurrentDayAbbr()}</span>
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -320,10 +328,10 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
                   type="button"
                   onClick={() => toggleDay(day)}
                   className={cn(
-                    "flex-1 h-11 rounded-xl text-xs font-bold transition-all border min-w-[40px]",
+                    "flex-1 h-14 brutal-border border-4 text-sm font-black transition-all min-w-[50px] uppercase",
                     selectedDays.includes(day)
-                      ? "bg-gradient-to-br from-purple-500 to-pink-500 border-0 text-white shadow-lg shadow-purple-500/20 scale-105"
-                      : "bg-white/[0.03] border-white/5 text-muted-foreground hover:bg-white/[0.08]"
+                      ? "bg-primary border-foreground brutal-shadow -translate-y-1"
+                      : "bg-background border-foreground text-muted-foreground hover:bg-muted"
                   )}
                 >
                   {day}
@@ -335,31 +343,31 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
 
         {/* Specific Date Indicator */}
         {specificDate && (
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-200">
-            <Calendar className="w-5 h-5 text-purple-400" />
+          <div className="flex items-center gap-4 p-5 brutal-border border-4 bg-primary/10 border-primary/30 text-foreground">
+            <Calendar className="w-6 h-6 text-primary" />
             <div className="flex flex-col">
-              <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Specific Date</span>
-              <span className="font-medium">{format(new Date(specificDate), "MMMM d, yyyy")}</span>
+              <span className="text-xs font-black uppercase tracking-[0.2em] italic">Specific Date</span>
+              <span className="text-xl font-black uppercase tracking-tight">{format(new Date(specificDate), "MMMM d, yyyy")}</span>
             </div>
           </div>
         )}
 
         {/* Footer Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/5">
+        <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t-4 border-foreground/10 mt-4">
           {taskToEdit && (
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
               onClick={handleDelete}
-              className="h-12 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border-0 px-5 font-bold gap-2"
+              className="h-14 brutal-border border-4 bg-red-500 text-white hover:bg-red-600 px-6 font-black uppercase italic gap-3 brutal-shadow active:translate-x-1 active:translate-y-1 shadow-none"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-5 w-5" />
               <span className="sm:hidden">Delete</span>
             </Button>
           )}
           {taskToEdit && (
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
               onClick={() => {
                 // Copy task: clear the taskToEdit reference so it creates a new one
@@ -375,24 +383,24 @@ const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit, defa
                 addTask(copiedData);
                 onClose();
               }}
-              className="h-12 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border-0 px-5 font-bold gap-2"
+              className="h-14 brutal-border border-4 bg-blue-500 text-white hover:bg-blue-600 px-6 font-black uppercase italic gap-3 brutal-shadow active:translate-x-1 active:translate-y-1 shadow-none"
             >
-              <Copy className="h-4 w-4" />
+              <Copy className="h-5 w-5" />
               <span className="sm:hidden">Copy</span>
             </Button>
           )}
           <div className="flex-1" />
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={onClose}
-            className="h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold px-6 border-0"
+            className="h-14 brutal-border border-4 bg-background text-foreground hover:bg-muted font-black uppercase italic px-8 transition-all active:translate-x-1 active:translate-y-1"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSave}
             disabled={!title || !startTime}
-            className="h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-10 border-0 shadow-lg shadow-purple-500/20 hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+            className="h-14 brutal-border border-4 bg-primary text-primary-foreground font-black uppercase italic px-12 brutal-shadow-lg hover:-translate-y-1 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {taskToEdit ? "Save Changes" : "Create Task"}
           </Button>

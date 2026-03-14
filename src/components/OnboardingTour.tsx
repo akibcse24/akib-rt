@@ -165,47 +165,47 @@ const OnboardingTour: React.FC = () => {
                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className="relative w-full max-w-md overflow-hidden rounded-[2rem] bg-card p-8 shadow-2xl border border-border"
+                    className="relative w-full max-w-md overflow-hidden brutal-card bg-card p-8 border-4 border-foreground brutal-shadow-lg"
                 >
                     {/* Progress Indicators */}
-                    <div className="flex gap-2 mb-6 justify-center">
+                    <div className="flex gap-3 mb-8 justify-center">
                         {STEPS.map((_, idx) => (
                             <div
                                 key={idx}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentStep ? "w-8 bg-purple-500" : "w-1.5 bg-muted-foreground/20"
+                                className={`h-4 w-4 brutal-border border-2 transition-all duration-200 ${idx === currentStep ? "bg-primary brutal-shadow scale-110" : "bg-muted"
                                     }`}
                             />
                         ))}
                     </div>
-
-                    <div className="text-center space-y-4 mb-8">
-                        <h3 className="text-2xl font-bold text-foreground tracking-tight">
+ 
+                    <div className="text-center space-y-6 mb-10">
+                        <h3 className="text-3xl font-black text-foreground uppercase tracking-tighter italic leading-none">
                             {step.title}
                         </h3>
-                        <p className="text-muted-foreground leading-relaxed">
+                        <p className="text-foreground font-bold leading-tight uppercase tracking-tight text-sm">
                             {step.description}
                         </p>
                     </div>
-
-                    <div className="flex items-center gap-3">
+ 
+                    <div className="flex items-center gap-4">
                         <Button
-                            variant="ghost"
+                            variant="outline"
                             onClick={handleSkip}
-                            className="flex-1 h-12 rounded-xl text-muted-foreground hover:bg-muted font-medium"
+                            className="flex-1 h-14 brutal-border border-4 bg-background text-muted-foreground hover:bg-muted font-black uppercase italic shadow-none transition-all active:translate-x-1 active:translate-y-1"
                         >
                             Skip
                         </Button>
                         <Button
                             onClick={handleNext}
-                            className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold shadow-lg shadow-purple-500/20"
+                            className="flex-[2] h-14 brutal-border border-4 bg-primary text-primary-foreground font-black uppercase italic shadow-none transition-all hover:-translate-y-1 brutal-shadow active:translate-y-0 active:translate-x-0"
                         >
                             {currentStep === STEPS.length - 1 ? (
                                 <span className="flex items-center gap-2">
-                                    Get Started <Check className="w-4 h-4" />
+                                    Get Started <Check className="w-5 h-5 stroke-[3]" />
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    Next <ChevronRight className="w-4 h-4" />
+                                    Next <ChevronRight className="w-5 h-5 stroke-[3]" />
                                 </span>
                             )}
                         </Button>

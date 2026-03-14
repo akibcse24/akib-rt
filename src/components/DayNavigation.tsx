@@ -41,52 +41,52 @@ const DayNavigation: React.FC = () => {
   };
 
   return (
-    <div className="w-full overflow-x-auto pb-10 pt-4 scrollbar-hide px-1">
-      <div className="flex min-w-max space-x-4">
+    <div className="w-full overflow-x-auto pb-12 pt-6 scrollbar-hide px-2">
+      <div className="flex min-w-max space-x-6">
         {DAYS.map((day) => {
           const isSelected = selectedDay === day;
           const isActualToday = actualToday === day;
           const progress = getDayProgress(day);
-
+ 
           return (
             <button
               key={day}
               onClick={() => setSelectedDay(day)}
               className={cn(
-                "group relative flex flex-col items-center justify-center rounded-[2.5rem] transition-all duration-300",
-                "h-32 w-28",
+                "group relative flex flex-col items-center justify-center transition-all duration-200",
+                "h-40 w-32 brutal-border",
                 isSelected
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105 z-10 border-0"
-                  : "bg-card text-muted-foreground hover:bg-muted hover:scale-102 border border-border"
+                  ? "bg-primary text-primary-foreground brutal-shadow-lg z-10 -translate-y-2 border-4 border-foreground"
+                  : "bg-background text-muted-foreground hover:bg-muted brutal-shadow border-4 border-foreground"
               )}
             >
               {isActualToday && (
                 <div className={cn(
-                  "absolute top-4 h-1.5 w-1.5 rounded-full animate-pulse",
-                  isSelected ? "bg-primary-foreground" : "bg-primary"
+                  "absolute top-4 left-4 h-4 w-4 brutal-border",
+                  isSelected ? "bg-white" : "bg-primary"
                 )} />
               )}
               <span className={cn(
-                "text-[10px] font-bold tracking-[0.2em] mb-3 transition-colors uppercase",
-                isSelected ? "text-primary-foreground/80" : "text-muted-foreground/60 group-hover:text-foreground/60"
+                "text-sm font-black tracking-widest mb-4 transition-colors uppercase italic",
+                isSelected ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
               )}>
                 {day}
               </span>
-
+ 
               <div className="flex flex-col items-center">
                 <span className={cn(
-                  "text-2xl font-bold tracking-tighter",
+                  "text-4xl font-black tracking-tighter leading-none mb-4 italic",
                   isSelected ? "text-primary-foreground" : "text-foreground"
                 )}>
                   {progress}%
                 </span>
-
+ 
                 <div className={cn(
-                  "mt-3 h-1 w-12 rounded-full transition-all overflow-hidden",
-                  isSelected ? "bg-primary-foreground/30" : "bg-muted"
+                  "h-3 w-20 brutal-border border-2 overflow-hidden",
+                  isSelected ? "bg-black/20" : "bg-muted"
                 )}>
                   <div
-                    className={cn("h-full transition-all duration-1000", isSelected ? "bg-primary-foreground" : "bg-primary")}
+                    className={cn("h-full transition-all duration-1000", isSelected ? "bg-white" : "bg-primary")}
                     style={{ width: `${progress}%` }}
                   />
                 </div>

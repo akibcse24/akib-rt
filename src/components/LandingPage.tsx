@@ -8,26 +8,25 @@ import { User, Lock, Mail, CheckCircle, Timer, Sparkles, Trophy, ArrowRight, Che
 
 // --- Components for Landing Page Sections ---
 
-const FeatureCard = ({ icon: Icon, title, description, color }: any) => (
-    <div className="group relative overflow-hidden rounded-3xl border border-border bg-card/50 p-8 transition-all hover:bg-card hover:shadow-2xl hover:shadow-purple-500/10">
-        <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 transition-opacity group-hover:opacity-5`} />
-        <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-muted transition-transform group-hover:scale-110">
-            <Icon className="h-7 w-7 text-foreground" />
+const FeatureCard = ({ icon: Icon, title, description }: any) => (
+    <div className="brutal-card group">
+        <div className="mb-6 inline-flex h-14 w-14 items-center justify-center brutal-border bg-primary transition-transform group-hover:scale-110">
+            <Icon className="h-7 w-7 text-primary-foreground" />
         </div>
-        <h3 className="mb-3 text-xl font-bold text-foreground">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed">
+        <h3 className="mb-3 text-xl font-black uppercase text-foreground tracking-tighter">{title}</h3>
+        <p className="text-muted-foreground font-bold leading-tight">
             {description}
         </p>
     </div>
 );
 
 const StepCard = ({ number, title, description }: any) => (
-    <div className="relative flex flex-col items-center text-center p-6">
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-2xl font-bold text-white shadow-lg shadow-purple-500/30">
+    <div className="brutal-card flex flex-col items-center text-center p-8 bg-background shadow-none hover:shadow-primary/20">
+        <div className="mb-6 flex h-16 w-16 items-center justify-center brutal-border bg-primary text-2xl font-black text-primary-foreground brutal-shadow">
             {number}
         </div>
-        <h3 className="mb-3 text-xl font-bold text-foreground">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed max-w-xs">
+        <h3 className="mb-3 text-xl font-black uppercase tracking-tight text-foreground">{title}</h3>
+        <p className="text-muted-foreground font-bold leading-tight max-w-xs">
             {description}
         </p>
     </div>
@@ -122,25 +121,25 @@ const LandingPage: React.FC = () => {
 
                     {/* Hero Content */}
                     <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-8">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/10 px-4 py-2 text-sm font-bold text-purple-600 dark:text-purple-300 border border-purple-500/20">
-                            <Sparkles className="w-4 h-4 fill-purple-500" />
+                        <div className="inline-flex items-center gap-2 brutal-border bg-primary px-4 py-2 text-xs font-black uppercase tracking-widest text-primary-foreground brutal-shadow">
+                            <Sparkles className="w-4 h-4 fill-primary-foreground" />
                             <span>AI-Powered Routine Tracker</span>
                         </div>
-
-                        <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/60">
+ 
+                        <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase leading-[0.9] text-foreground">
                             Master Your <br />
-                            <span className="text-purple-500">Daily Flow</span>
+                            <span className="text-primary bg-foreground px-4 py-2 brutal-border block mt-2 w-fit">Daily Flow</span>
                         </h1>
-
-                        <p className="text-xl text-muted-foreground max-w-xl leading-relaxed">
+ 
+                        <p className="text-xl text-muted-foreground font-bold max-w-xl leading-snug brutal-border p-4 bg-muted/50">
                             Build rock-solid habits, track your progress, and achieve your goals with our intelligent focus engine and analytics.
                         </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                            <Button className="h-14 px-8 rounded-2xl bg-foreground text-background font-bold text-lg hover:opacity-90 transition-opacity">
-                                Get Started <ArrowRight className="ml-2 w-5 h-5" />
+ 
+                        <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+                            <Button className="h-16 px-10 bg-primary text-primary-foreground text-xl">
+                                Get Started <ArrowRight className="ml-2 w-6 h-6" />
                             </Button>
-                            <Button variant="ghost" className="h-14 px-8 rounded-2xl font-bold text-lg border border-border hover:bg-muted">
+                            <Button variant="outline" className="h-16 px-10 text-xl border-foreground">
                                 Learn More
                             </Button>
                         </div>
@@ -163,7 +162,7 @@ const LandingPage: React.FC = () => {
 
                     {/* Login/Signup Card */}
                     <div className="w-full max-w-md mx-auto lg:ml-auto space-y-8">
-                        <div className="rounded-3xl p-8 shadow-2xl bg-card/80 backdrop-blur-xl border border-border/50 ring-1 ring-border/50">
+                        <div className="brutal-card p-10 brutal-shadow-lg scale-105 bg-card">
                             <div className="mb-8 text-center">
                                 <h2 className="text-2xl font-bold text-foreground">
                                     {isRegistering ? "Create your account" : "Welcome back"}
@@ -240,13 +239,13 @@ const LandingPage: React.FC = () => {
                                 </Button>
                             </form>
 
-                            <div className="mt-6 text-center">
-                                <p className="text-sm text-muted-foreground">
+                            <div className="mt-8 text-center">
+                                <p className="text-sm font-bold uppercase text-muted-foreground">
                                     {isRegistering ? "Already have an account? " : "New to Routine Tracker? "}
                                     <button
                                         type="button"
                                         onClick={() => setIsRegistering(!isRegistering)}
-                                        className="font-bold text-purple-500 hover:text-purple-400 transition-colors"
+                                        className="text-primary hover:underline"
                                     >
                                         {isRegistering ? "Sign In" : "Sign Up Free"}
                                     </button>
@@ -258,48 +257,42 @@ const LandingPage: React.FC = () => {
             </section>
 
             {/* --- FEATURES SECTION --- */}
-            <section className="py-24 bg-muted/30 border-y border-border">
+            <section className="py-24 border-y brutal-border bg-muted">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-16 max-w-3xl mx-auto">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">Everything you need to <span className="text-purple-500">excel</span></h2>
-                        <p className="text-lg text-muted-foreground">Our comprehensive suite of tools helps you manage time, track habits, and stay motivated every single day.</p>
+                    <div className="text-center mb-20 max-w-3xl mx-auto">
+                        <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter uppercase leading-none">Everything you need to <span className="bg-primary px-3 brutal-border">excel</span></h2>
+                        <p className="text-xl text-muted-foreground font-bold leading-tight">Our comprehensive suite of tools helps you manage time, track habits, and stay motivated every single day.</p>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+ 
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         <FeatureCard
                             icon={Timer}
                             title="Focus Engine"
                             description="Immersive timer with ambient sounds to help you enter deep work states effortlessly."
-                            color="from-blue-500/20 to-cyan-500/20"
                         />
                         <FeatureCard
                             icon={Trophy}
                             title="Gamified Leaderboard"
                             description="Compete with friends and the global community. Earn streaks, badges, and rewards."
-                            color="from-yellow-500/20 to-orange-500/20"
                         />
                         <FeatureCard
                             icon={Sparkles}
                             title="AI Assistant"
                             description="Smart insights about your productivity patterns and personalized routine suggestions."
-                            color="from-purple-500/20 to-pink-500/20"
                         />
                     </div>
                 </div>
             </section>
-
+ 
             {/* --- HOW IT WORKS SECTION --- */}
             <section className="py-24 bg-background">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">How it works</h2>
-                        <p className="text-muted-foreground">Three simple steps to a better you.</p>
+                    <div className="text-center mb-20">
+                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">How it works</h2>
+                        <p className="font-bold text-muted-foreground uppercase tracking-widest">Three simple steps to a better you.</p>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-                        {/* Connection Lines (Desktop only) */}
-                        <div className="hidden md:block absolute top-14 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500/20 to-purple-500/0" />
-
+ 
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                         <StepCard
                             number="1"
                             title="Create Routines"
@@ -318,20 +311,20 @@ const LandingPage: React.FC = () => {
                     </div>
                 </div>
             </section>
-
+ 
             {/* --- FOOTER --- */}
-            <footer className="py-12 border-t border-border bg-muted/20">
+            <footer className="py-16 border-t brutal-border bg-card">
                 <div className="container mx-auto px-4 text-center">
-                    <div className="flex items-center justify-center gap-3 mb-6">
-                        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+                    <div className="flex items-center justify-center gap-4 mb-10">
+                        <div className="h-12 w-12 brutal-border bg-primary flex items-center justify-center text-primary-foreground font-black text-xl brutal-shadow">
                             RT
                         </div>
-                        <span className="text-xl font-bold">Routine Tracker</span>
+                        <span className="text-3xl font-black uppercase tracking-tighter">Routine Tracker</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-8 text-center max-w-sm mx-auto">
+                    <p className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-12 text-center max-w-sm mx-auto">
                         Designed to help you build consistency and achieve your full potential.
                     </p>
-                    <div className="text-xs text-muted-foreground/60 font-medium uppercase tracking-widest">
+                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
                         © 2026 Routine Tracker. All rights reserved.
                     </div>
                 </div>

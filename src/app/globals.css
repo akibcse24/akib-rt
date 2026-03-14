@@ -1,140 +1,135 @@
 @import "tailwindcss";
-
+ 
 :root {
-  /* Light Mode - Clean white/lavender theme */
-  --background: #f8f5ff;
-  --foreground: #1e1b4b;
-  --card: #ffffff;
-  --card-foreground: #1e1b4b;
-  --primary: #8b5cf6;
-  --primary-foreground: #ffffff;
-  --muted: #f3f0ff;
-  --muted-foreground: #6b7280;
-  --border: #e9e3ff;
-  --accent: #ddd6fe;
-
-  --gradient-from: #a855f7;
-  --gradient-to: #ec4899;
-
-  /* Light mode specific */
-  --header-bg: rgba(255, 255, 255, 0.8);
-  --sidebar-bg: rgba(255, 255, 255, 0.95);
-  --overlay-bg: rgba(0, 0, 0, 0.2);
+  /* Neo-Brutalism Light Theme */
+  --background: 0 0% 98%;
+  --foreground: 0 0% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  --primary: 52 100% 45%;
+  --primary-foreground: 0 0% 0%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 40%;
+  --border: 0 0% 80%;
+  --accent: 0 0% 90%;
+  --destructive: 0 84% 60%;
+ 
+  --brutal-shadow: 4px 4px 0px hsl(0 0% 25%);
+  --brutal-shadow-lg: 6px 6px 0px hsl(0 0% 20%);
+  --brutal-border: 2px solid hsl(0 0% 10%);
 }
-
+ 
 .dark {
-  /* Dark Mode - Deep purple/pink theme */
-  --background: #0f0a1a;
-  --foreground: #f8fafc;
-  --card: #1a1025;
-  --card-foreground: #f1f5f9;
-  --primary: #9333ea;
-  --primary-foreground: #ffffff;
-  --muted: #1e1330;
-  --muted-foreground: #94a3b8;
-  --border: #2d1f42;
-  --accent: #3d2a5c;
-
-  --gradient-from: #a855f7;
-  --gradient-to: #ec4899;
-
-  /* Dark mode specific */
-  --header-bg: rgba(15, 10, 26, 0.8);
-  --sidebar-bg: rgba(15, 10, 26, 0.95);
-  --overlay-bg: rgba(0, 0, 0, 0.6);
+  /* Neo-Brutalism Dark Theme */
+  --background: 0 0% 0%;
+  --foreground: 0 0% 95%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 95%;
+  --primary: 52 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --muted: 0 0% 8%;
+  --muted-foreground: 0 0% 50%;
+  --border: 0 0% 25%;
+  --accent: 0 0% 15%;
+  --destructive: 0 84% 60%;
+ 
+  --brutal-shadow: 4px 4px 0px hsl(0 0% 15%);
+  --brutal-shadow-lg: 6px 6px 0px hsl(0 0% 10%);
+  --brutal-border: 2px solid hsl(0 0% 30%);
 }
-
+ 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-accent: var(--accent);
-
-  --color-gradient-from: var(--gradient-from);
-  --color-gradient-to: var(--gradient-to);
-
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-border: hsl(var(--border));
+  --color-accent: hsl(var(--accent));
+  --color-destructive: hsl(var(--destructive));
+ 
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-space-mono);
+ 
+  --radius-none: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
 }
-
-@layer utilities {
-  .glass {
-    @apply bg-card/80 backdrop-blur-xl border border-border;
-  }
-
-  .glass-dark {
-    @apply dark:bg-black/30 bg-white/80 backdrop-blur-2xl border border-border;
-  }
-
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-gradient-from to-gradient-to;
-  }
+ 
+@utility brutal-shadow {
+  box-shadow: var(--brutal-shadow);
 }
-
-/* Shimmer animation for progress bars */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(200%);
-  }
+ 
+@utility brutal-shadow-lg {
+  box-shadow: var(--brutal-shadow-lg);
 }
-
-.animate-shimmer {
-  animation: shimmer 2s infinite;
+ 
+@utility brutal-border {
+  border: var(--brutal-border);
 }
-
-/* Level up celebration pulse */
-@keyframes level-up-pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
+ 
+@utility brutal-card {
+  border: var(--brutal-border);
+  box-shadow: var(--brutal-shadow);
+  background-color: var(--color-card);
+  padding: 1.5rem;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+ 
+  &:hover {
+    box-shadow: 2px 2px 0px hsl(0 0% 20%);
+    transform: translate(2px, 2px);
   }
 }
-
-.animate-level-up {
-  animation: level-up-pulse 0.5s ease-out;
-}
-
-/* Achievement unlock glow */
-@keyframes achievement-glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+ 
+@utility brutal-btn {
+  border: var(--brutal-border);
+  box-shadow: var(--brutal-shadow);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-weight: 700;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+ 
+  &:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
   }
-
-  50% {
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(236, 72, 153, 0.4);
-  }
 }
-
-.animate-achievement-glow {
-  animation: achievement-glow 1.5s ease-in-out infinite;
+ 
+@utility glass-effect {
+  backdrop-filter: blur(12px);
+  background-color: color-mix(in srgb, var(--color-background) 70%, transparent);
+  border-bottom-width: 1px;
+  border-color: var(--color-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
-  @apply antialiased transition-colors duration-300 min-h-screen selection:bg-purple-500/30;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-sans), system-ui;
+  @apply antialiased transition-colors duration-200 min-h-screen;
+}
+
+/* Custom Scrollbar for Neo-Brutalism */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border: 2px solid hsl(var(--foreground));
 }

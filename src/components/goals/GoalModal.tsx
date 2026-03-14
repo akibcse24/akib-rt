@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button, cn } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -15,12 +15,12 @@ interface GoalModalProps {
     goalToEdit?: Goal;
 }
 
-export const GoalModal: React.FC<GoalModalProps> = ({
+export const GoalModal = ({
     isOpen,
     onClose,
     onSave,
     goalToEdit,
-}) => {
+}: GoalModalProps) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [icon, setIcon] = useState("🎯");
@@ -78,7 +78,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
         if (goalToEdit) {
             onSave({ ...goalToEdit, ...goalData });
         } else {
-            onSave(goalData);
+            onSave(goalData as Omit<Goal, "id" | "createdAt" | "isCompleted">);
         }
 
         onClose();
@@ -93,137 +93,138 @@ export const GoalModal: React.FC<GoalModalProps> = ({
         >
             <div className="space-y-6 py-2">
                 {/* Title & Icon */}
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="md:w-24 shrink-0">
-                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 block">
+                <div className="flex flex-col md:flex-row gap-6">
+                    <div className="md:w-32 shrink-0">
+                        <label className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] mb-3 block italic">
                             Icon
                         </label>
                         <input
                             type="text"
                             value={icon}
-                            onChange={(e) => setIcon(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIcon(e.target.value)}
                             maxLength={2}
-                            className="flex h-14 w-full rounded-2xl border border-white/10 bg-white/5 text-center text-2xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                            className="flex h-16 w-full brutal-border border-4 bg-primary text-center text-4xl focus:outline-none focus:bg-primary focus:scale-105 transition-all brutal-shadow-lg brutal-glow"
                         />
                     </div>
                     <div className="flex-1">
                         <Input
                             label="Goal Title"
-                            placeholder="What do you want to achieve?"
+                            labelClassName="text-xs font-black text-primary uppercase tracking-[0.3em] mb-3 block italic"
+                            placeholder="What is your mission?"
                             value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="h-14 bg-white/5 text-lg font-medium border-white/10"
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                            className="h-16 bg-black text-2xl font-black uppercase tracking-tighter italic brutal-border border-4 focus:bg-primary/5"
                         />
                     </div>
                 </div>
 
                 {/* Description */}
-                <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                        Description (Optional)
+                <div className="space-y-3">
+                    <label className="text-xs font-black text-primary uppercase tracking-[0.3em] block italic">
+                        The Blueprint (Description)
                     </label>
                     <textarea
                         value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Why is this goal important to you?"
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDescription(e.target.value)}
+                        placeholder="Detail your path to greatness..."
                         rows={3}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all resize-none"
+                        className="w-full brutal-border border-4 bg-black p-4 text-lg font-bold text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:bg-primary/5 transition-all resize-none italic uppercase tracking-tight leading-relaxed"
                     />
                 </div>
 
                 {/* Target Date */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
-                    <div className="flex items-center gap-2 mb-3 text-purple-400">
-                        <Calendar className="h-4 w-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">
-                            Target Date
+                <div className="p-8 brutal-card bg-black border-foreground/50 border-4">
+                    <div className="flex items-center gap-4 mb-4 text-primary">
+                        <Calendar className="h-6 w-6 stroke-[4] drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+                        <span className="text-sm font-black uppercase tracking-[0.3em] italic">
+                            Deadline
                         </span>
                     </div>
                     <Input
                         type="date"
                         value={targetDate}
-                        onChange={(e) => setTargetDate(e.target.value)}
-                        className="bg-black/20 border-white/5"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTargetDate(e.target.value)}
+                        className="h-16 bg-black brutal-border border-4 text-xl font-black uppercase italic focus:bg-primary/5"
                     />
                 </div>
 
                 {/* Milestones */}
-                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5">
-                    <div className="flex items-center gap-2 mb-3 text-purple-400">
-                        <Target className="h-4 w-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">
-                            Milestones
+                <div className="p-8 brutal-card bg-black border-foreground/50 border-4">
+                    <div className="flex items-center gap-4 mb-4 text-primary">
+                        <Target className="h-6 w-6 stroke-[4] drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
+                        <span className="text-sm font-black uppercase tracking-[0.3em] italic">
+                            Strategic Milestones
                         </span>
                     </div>
 
                     {/* Add Milestone */}
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-4 mb-8 text-white">
                         <Input
-                            placeholder="Add a milestone..."
+                            placeholder="Add a milestone towards victory..."
                             value={newMilestone}
-                            onChange={(e) => setNewMilestone(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleAddMilestone()}
-                            className="bg-black/20 border-white/5"
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMilestone(e.target.value)}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleAddMilestone()}
+                            className="h-16 bg-black brutal-border border-4 text-xl font-black uppercase italic focus:bg-primary/5"
                         />
                         <Button
                             onClick={handleAddMilestone}
                             disabled={!newMilestone.trim()}
-                            className="h-12 w-12 rounded-xl bg-purple-500 hover:bg-purple-600 text-white border-0 shrink-0"
+                            className="h-16 px-8 brutal-border border-4 bg-foreground text-background brutal-shadow-lg hover:-translate-y-1 hover:brutal-glow transition-all active:translate-y-0 active:shadow-none shrink-0"
                         >
-                            <Plus className="h-5 w-5" />
+                            <Plus className="h-8 w-8 stroke-[4]" />
                         </Button>
                     </div>
 
                     {/* Milestone List */}
                     {milestones.length > 0 ? (
-                        <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                        <div className="space-y-4 max-h-72 overflow-y-auto pr-4 custom-scrollbar">
                             {milestones.map((milestone, index) => (
                                 <div
                                     key={milestone.id}
-                                    className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5"
+                                    className="flex items-center justify-between gap-6 p-5 brutal-border border-4 bg-black brutal-shadow-sm hover:brutal-shadow transition-shadow group"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-xs font-bold text-muted-foreground w-6">
-                                            {index + 1}.
+                                    <div className="flex items-center gap-5">
+                                        <span className="text-sm font-black text-primary w-8 italic">
+                                            {String(index + 1).padStart(2, "0")}
                                         </span>
-                                        <span className="text-sm font-medium text-white">
+                                        <span className="text-xl font-black uppercase tracking-tight text-foreground italic">
                                             {milestone.title}
                                         </span>
                                     </div>
                                     <Button
-                                        variant="ghost"
+                                        variant="outline"
                                         size="icon"
                                         onClick={() => handleRemoveMilestone(milestone.id)}
-                                        className="h-8 w-8 rounded-lg hover:bg-red-500/20 text-muted-foreground hover:text-red-400"
+                                        className="h-12 w-12 brutal-border border-4 bg-red-500 text-white hover:bg-red-600 brutal-shadow-sm active:translate-x-0.5 active:translate-y-0.5 active:shadow-none shadow-none opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
-                                        <X className="h-4 w-4" />
+                                        <X className="h-6 w-6 stroke-[4]" />
                                     </Button>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-sm text-muted-foreground/50 text-center py-4 italic">
-                            No milestones added yet
+                        <p className="text-xl font-black text-muted-foreground/20 text-center py-10 italic uppercase tracking-[0.4em]">
+                            No milestones set
                         </p>
                     )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/5">
+                <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t-8 border-foreground bg-black">
                     <div className="flex-1" />
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         onClick={onClose}
-                        className="h-14 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold px-8 border-0"
+                        className="h-20 px-12 text-2xl font-black uppercase italic brutal-btn bg-black text-foreground border-4 border-foreground hover:bg-foreground hover:text-background transition-colors"
                     >
-                        Cancel
+                        Abort
                     </Button>
                     <Button
                         onClick={handleSave}
                         disabled={!title.trim() || !targetDate}
-                        className="h-14 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-12 border-0 shadow-lg shadow-purple-500/20 hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+                        className="h-20 px-16 text-2xl font-black uppercase italic brutal-btn bg-primary text-primary-foreground brutal-shadow-lg hover:-translate-y-2 hover:brutal-glow transition-all active:translate-y-0 active:shadow-none shadow-none hover:shadow-none"
                     >
-                        {goalToEdit ? "Save Changes" : "Create Goal"}
+                        {goalToEdit ? "Update Goal" : "Initialize Goal"}
                     </Button>
                 </div>
             </div>

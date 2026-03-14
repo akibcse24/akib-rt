@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { Goal } from "@/context/GoalContext";
+import { useMemo } from "react";
+import { Goal } from "./GoalCard";
 import { format, differenceInDays, isPast, addDays } from "date-fns";
-import { Target, Flag, CheckCircle, CalendarDays, Milestone } from "lucide-react";
+import { Target, Flag, CheckCircle, CalendarDays, Milestone as MilestoneIcon } from "lucide-react";
 
 interface GoalTimelineProps {
     goals: Goal[];
     onGoalClick?: (goal: Goal) => void;
 }
 
-export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }) => {
+export const GoalTimeline = ({ goals, onGoalClick }: GoalTimelineProps) => {
     // Sort goals by target date
     const sortedGoals = useMemo(() => {
         return [...goals].sort((a, b) =>
@@ -43,25 +43,25 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
     };
 
     const statusColors = {
-        completed: "from-emerald-500 to-green-500",
-        overdue: "from-red-500 to-orange-500",
-        soon: "from-yellow-500 to-amber-500",
-        active: "from-purple-500 to-pink-500",
+        completed: "bg-green-500",
+        overdue: "bg-red-500",
+        soon: "bg-yellow-500",
+        active: "bg-primary",
     };
-
+ 
     const statusBg = {
-        completed: "bg-emerald-500/20 border-emerald-500/30",
-        overdue: "bg-red-500/20 border-red-500/30",
-        soon: "bg-yellow-500/20 border-yellow-500/30",
-        active: "bg-purple-500/20 border-purple-500/30",
+        completed: "bg-green-500/10 border-green-500",
+        overdue: "bg-red-500/10 border-red-500",
+        soon: "bg-yellow-500/10 border-yellow-500",
+        active: "bg-black border-foreground",
     };
 
     if (goals.length === 0) {
         return (
-            <div className="rounded-3xl bg-card border border-border p-8 text-center">
-                <Target className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-foreground mb-2">No Goals Yet</h3>
-                <p className="text-sm text-muted-foreground">
+            <div className="brutal-card p-12 text-center bg-background border-foreground">
+                <Target className="h-16 w-16 text-muted-foreground/30 mx-auto mb-6" />
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic text-foreground mb-3">No Goals Yet</h3>
+                <p className="text-base font-bold text-muted-foreground uppercase italic tracking-tight">
                     Create goals to see your timeline visualization
                 </p>
             </div>
@@ -69,15 +69,15 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
     }
 
     return (
-        <div className="rounded-3xl bg-card border border-border p-6">
+        <div className="brutal-card p-10 bg-black border-4 border-foreground brutal-shadow-lg">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-6">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                    <CalendarDays className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-6 mb-12">
+                <div className="h-16 w-16 brutal-border border-4 bg-primary flex items-center justify-center brutal-shadow-sm transition-transform hover:scale-110 hover:rotate-3">
+                    <CalendarDays className="h-8 w-8 text-primary-foreground stroke-[3]" />
                 </div>
                 <div>
-                    <h3 className="font-bold text-foreground">Goal Timeline</h3>
-                    <p className="text-xs text-muted-foreground">
+                    <h3 className="text-3xl font-black uppercase tracking-tighter italic text-foreground leading-none">Goal Timeline</h3>
+                    <p className="text-xs font-black uppercase tracking-[0.3em] italic text-primary mt-2">
                         {format(minDate, "MMM d")} → {format(maxDate, "MMM d, yyyy")}
                     </p>
                 </div>
@@ -86,14 +86,14 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
             {/* Timeline */}
             <div className="relative">
                 {/* Timeline Track */}
-                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500/50 via-pink-500/30 to-transparent" />
+                <div className="absolute left-6 top-0 bottom-0 w-1.5 bg-foreground/10" />
 
                 {/* Today Marker */}
-                <div className="absolute left-4 top-0 z-10">
-                    <div className="h-5 w-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center ring-4 ring-background">
-                        <div className="h-2 w-2 rounded-full bg-white" />
+                <div className="absolute left-2.5 top-0 z-10 flex items-center">
+                    <div className="h-8 w-8 brutal-border border-4 bg-primary flex items-center justify-center shadow-none brutal-glow">
+                        <div className="h-3 w-3 bg-foreground" />
                     </div>
-                    <span className="absolute left-8 top-0 text-xs font-bold text-purple-400">Today</span>
+                    <span className="ml-6 text-sm font-black uppercase tracking-[0.4em] italic text-primary">Today</span>
                 </div>
 
                 {/* Goal Items */}
@@ -101,35 +101,43 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
                     {sortedGoals.map((goal) => {
                         const status = getGoalStatus(goal);
                         const daysLeft = differenceInDays(new Date(goal.targetDate), new Date());
+                        
+                        // Calculate progress from milestones
+                        const milestones = Array.isArray(goal.milestones) ? goal.milestones : [];
+                        const completedMilestones = milestones.filter(m => m.isCompleted).length;
+                        const totalMilestones = milestones.length;
+                        const progress = totalMilestones > 0
+                            ? Math.round((completedMilestones / totalMilestones) * 100)
+                            : goal.isCompleted ? 100 : 0;
 
                         return (
                             <div
                                 key={goal.id}
-                                className="relative pl-12 cursor-pointer transition-all hover:translate-x-1"
+                                className="relative pl-16 cursor-pointer group"
                                 onClick={() => onGoalClick?.(goal)}
                             >
                                 {/* Timeline Node */}
-                                <div className={`absolute left-3.5 top-4 h-6 w-6 rounded-full flex items-center justify-center ring-4 ring-background ${status === "completed"
-                                        ? "bg-emerald-500"
+                                <div className={`absolute left-3 top-6 h-8 w-8 brutal-border border-4 flex items-center justify-center transition-all group-hover:scale-125 group-hover:brutal-glow ${status === "completed"
+                                        ? "bg-green-500 border-green-500"
                                         : status === "overdue"
-                                            ? "bg-red-500"
-                                            : "bg-gradient-to-br " + statusColors[status]
+                                            ? "bg-red-500 border-red-500"
+                                            : "bg-primary border-foreground"
                                     }`}>
                                     {status === "completed" ? (
-                                        <CheckCircle className="h-4 w-4 text-white" />
+                                        <CheckCircle className="h-4 w-4 text-white stroke-[4]" />
                                     ) : (
-                                        <Flag className="h-3 w-3 text-white" />
+                                        <Flag className="h-4 w-4 text-white stroke-[3]" />
                                     )}
                                 </div>
 
                                 {/* Goal Card */}
-                                <div className={`p-4 rounded-2xl border ${statusBg[status]} transition-all hover:shadow-lg`}>
-                                    <div className="flex items-start justify-between gap-4">
+                                <div className={`p-6 brutal-border border-4 ${statusBg[status as keyof typeof statusBg]} transition-all group-hover:-translate-y-2 brutal-shadow-sm group-hover:brutal-shadow-lg shadow-none group-hover:shadow-none bg-black`}>
+                                    <div className="flex items-start justify-between gap-6">
                                         <div className="flex-1 min-w-0">
                                             {/* Goal Title */}
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xl">🎯</span>
-                                                <h4 className={`font-bold truncate ${status === "completed" ? "text-emerald-400 line-through" : "text-foreground"
+                                            <div className="flex items-center gap-4 mb-3">
+                                                <span className="text-3xl transition-transform group-hover:scale-110">{goal.icon || "🎯"}</span>
+                                                <h4 className={`text-xl font-black uppercase tracking-tighter truncate italic ${status === "completed" ? "text-green-500/50 line-through" : "text-foreground"
                                                     }`}>
                                                     {goal.title}
                                                 </h4>
@@ -137,23 +145,23 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
 
                                             {/* Description */}
                                             {goal.description && (
-                                                <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
+                                                <p className="text-xs font-bold text-muted-foreground line-clamp-1 mb-4 italic uppercase tracking-tight">
                                                     {goal.description}
                                                 </p>
                                             )}
 
                                             {/* Progress Bar */}
-                                            {goal.progress > 0 && (
-                                                <div className="flex items-center gap-2">
-                                                    <Milestone className="h-3 w-3 text-muted-foreground" />
-                                                    <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                            {(progress > 0 || goal.isCompleted) && (
+                                                <div className="flex items-center gap-4">
+                                                    <MilestoneIcon className="h-5 w-5 text-primary stroke-[3]" />
+                                                    <div className="flex-1 h-4 brutal-border border-2 bg-black overflow-hidden shadow-none">
                                                         <div
-                                                            className={`h-full rounded-full bg-gradient-to-r ${statusColors[status]}`}
-                                                            style={{ width: `${goal.progress}%` }}
+                                                            className={`h-full transition-all duration-1000 ease-out ${status === "completed" ? "bg-green-500" : "bg-primary"}`}
+                                                            style={{ width: `${progress}%` }}
                                                         />
                                                     </div>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {goal.progress}%
+                                                    <span className="text-sm font-black italic text-primary">
+                                                        {progress}%
                                                     </span>
                                                 </div>
                                             )}
@@ -161,15 +169,15 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
 
                                         {/* Date & Status */}
                                         <div className="text-right shrink-0">
-                                            <p className="text-xs font-bold text-foreground">
+                                            <p className="text-base font-black uppercase italic text-foreground leading-none mb-2">
                                                 {format(new Date(goal.targetDate), "MMM d")}
                                             </p>
-                                            <p className={`text-[10px] font-medium ${status === "completed" ? "text-emerald-400" :
-                                                    status === "overdue" ? "text-red-400" :
-                                                        status === "soon" ? "text-yellow-400" :
+                                            <p className={`text-[11px] font-black uppercase tracking-[0.2em] italic leading-none ${status === "completed" ? "text-green-500" :
+                                                    status === "overdue" ? "text-red-500" :
+                                                        status === "soon" ? "text-yellow-500" :
                                                             "text-muted-foreground"
                                                 }`}>
-                                                {status === "completed" ? "Done!" :
+                                                {status === "completed" ? "Complete" :
                                                     status === "overdue" ? `${Math.abs(daysLeft)}d overdue` :
                                                         daysLeft === 0 ? "Due today" :
                                                             `${daysLeft}d left`}
@@ -184,16 +192,16 @@ export const GoalTimeline: React.FC<GoalTimelineProps> = ({ goals, onGoalClick }
             </div>
 
             {/* Legend */}
-            <div className="flex items-center justify-center gap-4 mt-6 pt-4 border-t border-border">
+            <div className="flex items-center justify-center gap-12 mt-12 pt-8 border-t-4 border-foreground/10">
                 {[
                     { status: "active", label: "Active" },
                     { status: "soon", label: "Due Soon" },
                     { status: "overdue", label: "Overdue" },
                     { status: "completed", label: "Completed" },
                 ].map(({ status, label }) => (
-                    <div key={status} className="flex items-center gap-1.5">
-                        <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${statusColors[status as keyof typeof statusColors]}`} />
-                        <span className="text-[10px] text-muted-foreground">{label}</span>
+                    <div key={status} className="flex items-center gap-4 group/l cursor-help">
+                        <div className={`h-5 w-5 brutal-border border-2 transition-transform group-hover/l:scale-125 ${statusColors[status as keyof typeof statusColors]}`} />
+                        <span className="text-xs font-black uppercase tracking-[0.2em] italic text-muted-foreground group-hover/l:text-foreground transition-colors">{label}</span>
                     </div>
                 ))}
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { useMemo } from "react";
 import { Button, cn } from "@/components/ui/Button";
 import { Target, Calendar, Trash2, Edit2, CheckCircle } from "lucide-react";
 import { format, differenceInDays, isPast } from "date-fns";
@@ -31,13 +31,13 @@ interface GoalCardProps {
     onToggleMilestone: (goalId: string, milestoneId: string) => void;
 }
 
-export const GoalCard: React.FC<GoalCardProps> = ({
+export const GoalCard = ({
     goal,
     onEdit,
     onDelete,
     onToggleComplete,
     onToggleMilestone,
-}) => {
+}: GoalCardProps) => {
     const targetDate = new Date(goal.targetDate);
     const daysRemaining = differenceInDays(targetDate, new Date());
     const isOverdue = isPast(targetDate) && !goal.isCompleted;
@@ -55,159 +55,161 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     return (
         <div
             className={cn(
-                "group relative overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:shadow-xl",
+                "group relative overflow-hidden brutal-card p-1 pb-1 transition-all duration-300",
                 goal.isCompleted
-                    ? "border-green-500/30 bg-green-500/5"
+                    ? "bg-green-500/10 border-green-500 brutal-shadow-sm"
                     : isOverdue
-                        ? "border-red-500/30 bg-red-500/5"
-                        : "border-white/10 bg-white/[0.03] hover:border-purple-500/30 hover:bg-white/[0.05]"
+                        ? "bg-red-500/10 border-red-500 brutal-shadow-sm"
+                        : "bg-black border-foreground brutal-shadow-lg hover:-translate-y-2 hover:brutal-glow active:translate-y-0 active:shadow-none"
             )}
         >
-            {/* Background Glow */}
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="p-6 brutal-border border-0 border-b-4 border-foreground bg-muted/30">
+                {/* Background Glow */}
+                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-            <div className="relative z-10">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-3xl shadow-inner">
+                <div className="p-6 space-y-4">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                        <div className="flex items-center gap-5">
+                        <div className="flex h-20 w-20 items-center justify-center brutal-border border-4 bg-primary text-5xl shadow-none transition-transform group-hover:scale-110 group-hover:rotate-3">
                             {goal.icon}
                         </div>
                         <div>
                             <h3 className={cn(
-                                "text-lg font-bold tracking-tight",
-                                goal.isCompleted ? "text-green-400" : "text-white"
+                                "text-3xl font-black uppercase tracking-tighter leading-none italic mb-2",
+                                goal.isCompleted ? "text-green-500" : "text-foreground"
                             )}>
                                 {goal.title}
                             </h3>
-                            <div className="flex items-center gap-2 mt-1">
-                                <Calendar className="h-3 w-3 text-muted-foreground" />
-                                <span className={cn(
-                                    "text-xs font-medium",
-                                    isOverdue ? "text-red-400" : "text-muted-foreground"
-                                )}>
-                                    {isOverdue
-                                        ? `Overdue by ${Math.abs(daysRemaining)} days`
-                                        : daysRemaining === 0
-                                            ? "Due today"
-                                            : `${daysRemaining} days remaining`
-                                    }
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-primary stroke-[3]" />
+                                    <span className={cn(
+                                        "text-xs font-black uppercase tracking-[0.2em] italic",
+                                        isOverdue ? "text-red-500" : "text-muted-foreground"
+                                    )}>
+                                        {isOverdue
+                                            ? `Overdue (${Math.abs(daysRemaining)}d)`
+                                            : daysRemaining === 0
+                                                ? "Due today"
+                                                : `${daysRemaining} days left`
+                                        }
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onToggleComplete(goal.id)}
-                            className={cn(
-                                "h-10 w-10 rounded-xl transition-all",
-                                goal.isCompleted
-                                    ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
-                                    : "hover:bg-white/10 text-muted-foreground hover:text-white"
-                            )}
-                        >
-                            <CheckCircle className="h-5 w-5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onEdit(goal)}
-                            className="h-10 w-10 rounded-xl hover:bg-white/10 text-muted-foreground hover:text-white"
-                        >
-                            <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onDelete(goal.id)}
-                            className="h-10 w-10 rounded-xl hover:bg-red-500/20 text-muted-foreground hover:text-red-400"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Description */}
-                {goal.description && (
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                        {goal.description}
-                    </p>
-                )}
-
-                {/* Progress Bar */}
-                <div className="mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs font-medium text-muted-foreground">Progress</span>
-                        <span className="text-xs font-bold text-purple-400">{progress}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                        <div
-                            className={cn(
-                                "h-full rounded-full transition-all duration-500",
-                                goal.isCompleted
-                                    ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                                    : "bg-gradient-to-r from-purple-500 to-pink-500"
-                            )}
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                </div>
-
-                {/* Milestones */}
-                {milestones.length > 0 && (
-                    <div className="space-y-2">
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                            Milestones ({completedMilestones}/{totalMilestones})
-                        </span>
-                        <div className="space-y-1.5">
-                            {milestones.slice(0, 3).map((milestone) => (
-                                <button
-                                    key={milestone.id}
-                                    onClick={() => onToggleMilestone(goal.id, milestone.id)}
-                                    className={cn(
-                                        "flex items-center gap-3 w-full p-2 rounded-xl text-left transition-all",
-                                        milestone.isCompleted
-                                            ? "bg-green-500/10 text-green-400"
-                                            : "bg-white/[0.03] text-muted-foreground hover:bg-white/[0.05]"
-                                    )}
-                                >
-                                    <div className={cn(
-                                        "h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all",
-                                        milestone.isCompleted
-                                            ? "border-green-500 bg-green-500"
-                                            : "border-muted-foreground"
-                                    )}>
-                                        {milestone.isCompleted && (
-                                            <CheckCircle className="h-3 w-3 text-white" />
-                                        )}
-                                    </div>
-                                    <span className={cn(
-                                        "text-sm font-medium",
-                                        milestone.isCompleted && "line-through opacity-60"
-                                    )}>
-                                        {milestone.title}
-                                    </span>
-                                </button>
-                            ))}
-                            {milestones.length > 3 && (
-                                <p className="text-xs text-muted-foreground pl-2">
-                                    +{milestones.length - 3} more milestones
-                                </p>
-                            )}
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onToggleComplete(goal.id)}
+                                className={cn(
+                                    "h-11 w-11 brutal-border border-4 transition-all brutal-shadow active:translate-x-1 active:translate-y-1 active:shadow-none shadow-none",
+                                    goal.isCompleted
+                                        ? "bg-green-500 text-white"
+                                        : "bg-background text-muted-foreground"
+                                )}
+                            >
+                                <CheckCircle className="h-6 w-6 stroke-[3]" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onEdit(goal)}
+                                className="h-11 w-11 brutal-border border-4 bg-background text-foreground transition-all brutal-shadow active:translate-x-1 active:translate-y-1 active:shadow-none shadow-none"
+                            >
+                                <Edit2 className="h-5 w-5 stroke-[3]" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => onDelete(goal.id)}
+                                className="h-11 w-11 brutal-border border-4 bg-red-500 text-white transition-all brutal-shadow active:translate-x-1 active:translate-y-1 active:shadow-none shadow-none"
+                            >
+                                <Trash2 className="h-5 w-5 stroke-[3]" />
+                            </Button>
                         </div>
                     </div>
-                )}
 
-                {/* Target Date */}
-                <div className="mt-4 pt-4 border-t border-white/5">
-                    <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Target Date</span>
-                        <span className="font-medium text-white">
-                            {format(targetDate, "MMM d, yyyy")}
-                        </span>
+                    {/* Description */}
+                    {goal.description && (
+                        <p className="text-base font-bold text-muted-foreground/80 mb-6 line-clamp-2 italic uppercase tracking-tight leading-relaxed">
+                            {goal.description}
+                        </p>
+                    )}
+
+                    {/* Progress Bar */}
+                    <div className="mb-6">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs font-black uppercase tracking-[0.3em] italic text-muted-foreground">Overall progress</span>
+                            <span className="text-base font-black italic text-primary">{progress}%</span>
+                        </div>
+                        <div className="h-6 w-full brutal-border border-4 bg-black overflow-hidden shadow-none">
+                            <div
+                                className={cn(
+                                    "h-full transition-all duration-1000 ease-out brutal-border border-0 border-r-4 border-foreground",
+                                    goal.isCompleted
+                                        ? "bg-green-500"
+                                        : "bg-primary"
+                                )}
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Milestones */}
+                    {milestones.length > 0 && (
+                        <div className="space-y-3">
+                            <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] italic">
+                                Milestones ({completedMilestones}/{totalMilestones})
+                            </span>
+                            <div className="space-y-2">
+                                {milestones.slice(0, 3).map((milestone) => (
+                                    <button
+                                        key={milestone.id}
+                                        onClick={() => onToggleMilestone(goal.id, milestone.id)}
+                                        className={cn(
+                                            "flex items-center gap-4 w-full p-4 brutal-border border-2 text-left transition-all hover:-translate-x-1 hover:bg-foreground/5",
+                                            milestone.isCompleted
+                                                ? "bg-green-500/10 border-green-500/50 text-green-500"
+                                                : "bg-black border-foreground/20 text-muted-foreground"
+                                        )}
+                                    >
+                                        <div className={cn(
+                                            "h-6 w-6 brutal-border border-2 flex items-center justify-center transition-all",
+                                            milestone.isCompleted
+                                                ? "border-green-500 bg-green-500"
+                                                : "border-muted-foreground/30 bg-black"
+                                        )}>
+                                            {milestone.isCompleted && (
+                                                <CheckCircle className="h-4 w-4 text-white stroke-[4]" />
+                                            )}
+                                        </div>
+                                        <span className={cn(
+                                            "text-sm font-black uppercase tracking-tight italic",
+                                            milestone.isCompleted && "line-through opacity-60"
+                                        )}>
+                                            {milestone.title}
+                                        </span>
+                                    </button>
+                                ))}
+                                {milestones.length > 3 && (
+                                    <p className="text-xs font-black uppercase italic text-muted-foreground/40 pl-2">
+                                        +{milestones.length - 3} more
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Target Date */}
+                    <div className="mt-6 pt-6 border-t-4 border-foreground/10">
+                        <div className="flex items-center justify-between text-xs font-black uppercase tracking-[0.2em] italic">
+                            <span className="text-muted-foreground">Target Date</span>
+                            <span className="text-foreground">
+                                {format(targetDate, "MMM d, yyyy")}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

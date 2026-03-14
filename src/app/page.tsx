@@ -23,14 +23,13 @@ export default function Home() {
 
   if (isAuthLoading || isTasksLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-black">
-        <div className="relative">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-purple-500 border-t-transparent"></div>
-          <div className="absolute inset-0 h-12 w-12 animate-pulse rounded-full bg-purple-500/20 blur-md"></div>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+        <div className="brutal-border bg-primary p-8 brutal-shadow animate-bounce">
+          <span className="text-4xl font-black uppercase tracking-tighter text-primary-foreground">Loading...</span>
         </div>
-        <div className="mt-6 text-center space-y-1">
-          <p className="text-base font-semibold text-foreground">Loading your routines</p>
-          <p className="text-xs text-muted-foreground">Getting everything ready...</p>
+        <div className="mt-10 text-center space-y-2">
+          <p className="text-xl font-bold uppercase tracking-tight text-foreground">Getting your routines ready</p>
+          <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Stay Focused • Stay Disciplined</p>
         </div>
       </div>
     );
@@ -62,56 +61,46 @@ export default function Home() {
 
           {/* Offline Banner - Show when offline with cached data */}
           {(!isOnline && totalTasksToday > 0) && (
-            <div className="my-6 relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-amber-500/10 p-6 sm:p-8 border border-blue-500/30 shadow-xl backdrop-blur-sm">
-              <div className="relative z-10 flex flex-col sm:flex-row items-center gap-5">
-                {/* Icon with gradient background */}
-                <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-sm flex-shrink-0 shadow-lg">
-                  <WifiOff className="w-7 h-7 text-blue-400" />
+            <div className="my-8 brutal-card bg-accent border-foreground">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="flex items-center justify-center w-16 h-16 brutal-border bg-background shadow-none flex-shrink-0">
+                  <WifiOff className="w-8 h-8 text-foreground" />
                 </div>
-
+ 
                 <div className="space-y-2 flex-1 text-center sm:text-left">
-                  {/* Main heading - positive framing */}
-                  <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent flex items-center gap-2 justify-center sm:justify-start">
-                    ✨ Working Offline
+                  <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground italic underline decoration-primary decoration-4">
+                    Working Offline
                   </h3>
-
-                  {/* Reassuring message */}
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                    <span className="font-semibold text-foreground">Your data is safe locally.</span> Continue tracking your routines—everything will sync automatically when you're back online.
+ 
+                  <p className="text-base font-bold text-foreground leading-tight">
+                    Your data is safe. Continue tracking—everything will sync automatically.
                   </p>
-
-                  {/* Optional: Add a small badge showing cached data is available */}
-                  <div className="flex items-center gap-2 justify-center sm:justify-start mt-3">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span className="text-xs font-medium text-green-400">Local data active</span>
+ 
+                  <div className="flex items-center gap-2 justify-center sm:justify-start mt-4">
+                    <div className="flex items-center gap-2 px-4 py-2 brutal-border bg-white text-black">
+                      <div className="w-3 h-3 bg-green-500 brutal-border"></div>
+                      <span className="text-xs font-black uppercase tracking-widest">Local data safe</span>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Enhanced background decoration */}
-              <div className="absolute top-0 right-0 -mt-10 -mr-10 h-56 w-56 bg-gradient-to-br from-blue-500/10 to-purple-500/10 blur-[80px] rounded-full pointer-events-none" />
-              <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-48 w-48 bg-gradient-to-tr from-purple-500/10 to-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
             </div>
           )}
 
           {/* Empty State Banner - Only show when online with no tasks */}
           {(!isTasksLoading && totalTasksToday === 0 && isOnline) && (
-            <div className="my-6 relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-8 border border-purple-500/20 text-center sm:text-left">
-              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="my-8 brutal-card bg-primary text-primary-foreground border-foreground brutal-shadow-lg">
+              <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-foreground">Ready to conquer the day?</h3>
-                  <p className="text-muted-foreground max-w-md">Your schedule is clear. Start from scratch or use a proved template to hit the ground running.</p>
+                  <h3 className="text-3xl font-black uppercase tracking-tighter">Ready to conquer the day?</h3>
+                  <p className="text-primary-foreground font-bold tracking-tight max-w-md">Your schedule is clear. Start from scratch or use a proved template to hit the ground running.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button onClick={handleAddTask} className="bg-foreground text-background hover:opacity-90 font-bold rounded-xl h-12 px-6">
-                    <Plus className="w-4 h-4 mr-2" /> Create Routine
+                  <Button onClick={handleAddTask} variant="secondary" className="h-16 px-10 text-xl shadow-none hover:translate-x-1 hover:translate-y-1">
+                    <Plus className="w-6 h-6 mr-2" /> Create Routine
                   </Button>
                 </div>
               </div>
-              {/* Background Decor */}
-              <div className="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 bg-purple-500/10 blur-[80px] rounded-full pointer-events-none" />
             </div>
           )}
 
@@ -137,8 +126,8 @@ export default function Home() {
       />
 
       {/* Footer / Info */}
-      <footer className="py-12 text-center text-muted-foreground/20 text-[10px] font-bold uppercase tracking-[0.2em]">
-        Designed for Excellence • Powered by RT
+      <footer className="py-16 text-center text-muted-foreground/40 text-xs font-black uppercase tracking-[0.3em] italic">
+        Designed for Excellence • Powered by RT • 2026
       </footer>
     </div>
   );

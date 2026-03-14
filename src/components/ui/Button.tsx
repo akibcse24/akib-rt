@@ -14,20 +14,20 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", ...props }, ref) => {
     const variants = {
-      primary: "bg-foreground text-background hover:bg-foreground/90 shadow-lg shadow-foreground/10",
-      secondary: "bg-purple-600 text-white hover:bg-purple-700 shadow-lg shadow-purple-600/20",
-      outline: "border border-border bg-transparent hover:bg-muted text-foreground font-semibold",
-      ghost: "bg-transparent hover:bg-muted text-foreground font-semibold",
-      danger: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
-      gradient: "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 shadow-lg shadow-purple-500/20",
+      primary: "bg-primary text-primary-foreground brutal-btn",
+      secondary: "bg-foreground text-background brutal-btn",
+      outline: "bg-transparent text-foreground brutal-border brutal-btn shadow-none hover:bg-muted",
+      ghost: "bg-transparent text-foreground hover:bg-muted font-bold",
+      danger: "bg-destructive text-white brutal-btn",
+      gradient: "bg-primary text-primary-foreground brutal-btn", // Fallback for neo-brutalism
     };
 
     const sizes = {
-      sm: "h-9 rounded-xl px-4 text-xs font-bold uppercase tracking-wider",
-      md: "h-12 rounded-2xl px-6 py-2 text-sm font-bold tracking-tight",
-      lg: "h-14 rounded-[1.25rem] px-8 text-base font-bold tracking-tight",
-      xl: "h-16 rounded-[1.5rem] px-10 text-lg font-bold tracking-tight",
-      icon: "h-12 w-12 p-0 flex items-center justify-center rounded-2xl",
+      sm: "h-9 px-4 text-xs font-bold uppercase tracking-wider",
+      md: "h-12 px-6 py-2 text-sm font-bold uppercase tracking-tight",
+      lg: "h-14 px-8 text-base font-bold uppercase tracking-tight",
+      xl: "h-16 px-10 text-lg font-bold uppercase tracking-tight",
+      icon: "h-12 w-12 p-0 flex items-center justify-center brutal-border brutal-shadow bg-card hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all",
     };
 
     return (
@@ -35,8 +35,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "inline-flex items-center justify-center transition-all duration-300 active:scale-95 disabled:pointer-events-none disabled:opacity-50 select-none",
-          variants[variant],
-          sizes[size],
+          variants[variant as keyof typeof variants],
+          sizes[size as keyof typeof sizes],
           className
         )}
         {...props}

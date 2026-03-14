@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/Button";
 import { GoalCard, Goal, Milestone } from "@/components/goals/GoalCard";
@@ -134,59 +134,63 @@ export default function GoalsPage() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <Header />
-      <main className="container mx-auto max-w-4xl px-4 pt-6">
+      <main className="container mx-auto max-w-5xl px-6 pt-16 pb-32">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-              <Target className="h-8 w-8 text-purple-400" />
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-10 mb-20 border-b-8 border-foreground pb-12">
+          <div className="space-y-4">
+            <h2 className="text-8xl font-black tracking-tighter text-foreground flex items-center gap-6 uppercase italic leading-none">
+              <Target className="h-20 w-20 text-primary stroke-[4] drop-shadow-[0_0_15px_hsl(var(--primary)/0.5)]" />
               Goals
             </h2>
-            <p className="text-muted-foreground mt-1">
-              Track your long-term goals and milestones
+            <p className="text-2xl font-black uppercase tracking-tight text-muted-foreground italic max-w-xl leading-snug">
+              Track your long-term ambitions and milestones with <span className="text-primary underline decoration-4 underline-offset-8">Atomic Precision</span>.
             </p>
           </div>
           <Button
             onClick={handleAddGoal}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-6 h-12 rounded-2xl border-0 shadow-lg shadow-purple-500/20 hover:scale-105 transition-transform"
+            className="h-20 px-12 text-2xl font-black uppercase italic brutal-btn bg-primary text-primary-foreground brutal-shadow-lg hover:-translate-y-2 hover:brutal-glow transition-all active:translate-y-0 active:shadow-none"
           >
-            <Plus className="mr-2 h-5 w-5" />
+            <Plus className="mr-3 h-8 w-8 stroke-[4]" />
             New Goal
           </Button>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-500 border-t-transparent" />
+          <div className="flex items-center justify-center py-40">
+            <div className="h-20 w-20 animate-spin brutal-border border-4 border-t-primary" />
           </div>
         ) : goals.length === 0 ? (
           /* Empty State */
-          <div className="flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed border-white/10 bg-white/[0.02]">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 mb-6">
-              <Target className="h-10 w-10 text-purple-400" />
+          <div className="flex flex-col items-center justify-center py-32 brutal-card bg-black border-foreground border-4 border-dashed brutal-shadow-lg">
+            <div className="flex h-32 w-32 items-center justify-center brutal-border border-4 bg-primary mb-10 brutal-shadow-lg brutal-glow rotate-3">
+              <Target className="h-16 w-16 text-primary-foreground stroke-[4]" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No Goals Yet</h3>
-            <p className="text-muted-foreground text-center max-w-sm mb-6">
+            <h3 className="text-5xl font-black text-foreground mb-6 uppercase tracking-tighter italic">No Goals Yet</h3>
+            <p className="text-2xl font-black text-muted-foreground text-center max-w-lg mb-12 uppercase tracking-tight italic leading-relaxed">
               Set your first goal and start tracking your progress towards
-              achieving your dreams.
+              achieving your <span className="text-primary">Greatest Ambitions</span>.
             </p>
             <Button
               onClick={handleAddGoal}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-6 h-12 rounded-2xl border-0"
+              className="h-20 px-12 text-2xl font-black uppercase italic brutal-btn bg-primary text-primary-foreground brutal-shadow-lg hover:-translate-y-2 hover:brutal-glow transition-all"
             >
-              <Plus className="mr-2 h-5 w-5" />
+              <Plus className="mr-3 h-8 w-8 stroke-[4]" />
               Create Your First Goal
             </Button>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-16">
+            {/* Timeline Section */}
+            <GoalTimeline goals={goals} onGoalClick={handleEditGoal} />
+
             {/* Active Goals */}
             {activeGoals.length > 0 && (
-              <div>
-                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">
+              <div className="space-y-6">
+                <h3 className="text-2xl font-black text-foreground uppercase tracking-[0.3em] italic flex items-center gap-5">
+                  <span className="h-3 w-16 bg-primary brutal-glow"></span>
                   Active Goals ({activeGoals.length})
                 </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {activeGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
@@ -203,11 +207,12 @@ export default function GoalsPage() {
 
             {/* Completed Goals */}
             {completedGoals.length > 0 && (
-              <div>
-                <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">
+              <div className="space-y-6">
+                <h3 className="text-2xl font-black text-muted-foreground uppercase tracking-[0.3em] italic flex items-center gap-5">
+                  <span className="h-3 w-16 bg-green-500"></span>
                   Completed ({completedGoals.length})
                 </h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 opacity-80 hover:opacity-100 transition-opacity">
                   {completedGoals.map((goal) => (
                     <GoalCard
                       key={goal.id}
